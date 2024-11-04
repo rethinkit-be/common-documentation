@@ -365,7 +365,7 @@ via the following endpoint.
 **Required method** for each plugin. Retrieves the schema that describes
 the risk model fields.
 
-<table style="display: flex; justify-content: center;">
+<table style="display: flex; justify-content: center; text-align: left">
   <tr>
     <th colspan="3">Get the risk model schema (simple)</th>
   </tr>
@@ -671,7 +671,7 @@ risk model, and adds defaults for the fields. The outcome of this call
 MAY be a valid risk model, but will most likely need additional input
 before it's valid.
 
-<table style="display: flex; justify-content: center;">
+<table style="display: flex; justify-content: center; text-align: left">
   <tr>
     <th colspan="3">Get a new instance of the risk model</th>
   </tr>
@@ -738,7 +738,7 @@ required/optional checking - it is up to the plugin to perform most
 validation. The core will automatically call upon the validation method
 wherever appropriate.
 
-<table style="display: flex; justify-content: center;">
+<table style="display: flex; justify-content: center; text-align: left">
   <tr>
     <th colspan="3">Validate an instance of the risk model</th>
   </tr>
@@ -910,7 +910,7 @@ the transform method if supported and persist the version of the risk
 model instance that was returned as a response. If the plugin does
 **NOT** implement the endpoint, it must return a **404** error.
 
-<table style="display: flex; justify-content: center;">
+<table style="display: flex; justify-content: center; text-align: left">
   <tr>
     <th colspan="3">Transform an instance of the risk model</th>
   </tr>
@@ -1005,7 +1005,7 @@ plugin does **NOT** implement the endpoint, it must return a **404**
 error. If the risk model contains error, the should be reported in the
 same format as in the validation endpoint.
 
-<table style="display: flex; justify-content: center;">
+<table style="display: flex; justify-content: center; text-align: left">
   <tr>
     <th colspan="3">Transform an instance of the risk model when creating a contract version</th>
   </tr>
@@ -1134,7 +1134,7 @@ The plugin must communicate the premiums with additional labels and
 target account information to the core. The core will resolve the target
 accounts and create the actual premiums.
 
-<table style="display: flex; justify-content: center;">
+<table style="display: flex; justify-content: center; text-align: left">
   <tr>
     <th colspan="3">Generate custom premiums for the contract timeline</th>
   </tr>
@@ -1221,7 +1221,7 @@ accounts and create the actual premiums.
     <th colspan="3">Error 404 - Method not supported (OK)</th>
   </tr>
   <tr>
-    <td>(no body)</td>
+    <td colspan="3">(no body)</td>
   </tr>
 </table>
 
@@ -1236,7 +1236,7 @@ basic information about the corresponding side. This information comes
 from the info endpoint. The values for the fields in the response are
 all determined by the plugin.
 
-<table style="display: flex; justify-content: center;">
+<table style="display: flex; justify-content: center; text-align: left">
   <tr>
     <th colspan="3">Retrieving plugin details</th>
   </tr>
@@ -1300,7 +1300,7 @@ timeline).
 The core will automatically query the plugin for the list of supported
 tags.
 
-<table style="display: flex; justify-content: center;">
+<table style="display: flex; justify-content: center; text-align: left">
   <tr>
     <th colspan="3">Generate custom premiums for the contract timeline</th>
   </tr>
@@ -1377,7 +1377,7 @@ This method provides various statuses of a valid risk model. The
 endpoint will return the risk level (optional), the insurability status
 (true\|false) and any applicable tags.
 
-<table style="display: flex; justify-content: center;">
+<table style="display: flex; justify-content: center; text-align: left">
   <tr>
     <th colspan="3">Generate custom premiums for the contract timeline</th>
   </tr>
@@ -1479,7 +1479,7 @@ Each rate method can have its own label for presentation purposes, and
 can indicate whether or not the package requires a pricing table (see
 the pricing table parameter in the rate calculation endpoint below).
 
-<table style="display: flex; justify-content: center;">
+<table style="display: flex; justify-content: center; text-align: left">
   <tr>
     <th colspan="3">Generate custom premiums for the contract timeline</th>
   </tr>
@@ -1561,7 +1561,7 @@ offer/contract.
     to more or less days. In that case, rounding may occur.
 
 
-<table style="display: flex; justify-content: center;">
+<table style="display: flex; justify-content: center; text-align: left">
   <tr>
     <th colspan="3">Generate custom premiums for the contract timeline</th>
   </tr>
