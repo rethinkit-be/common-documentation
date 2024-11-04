@@ -50,7 +50,7 @@ certain API updates may not be immediately reflected in this document.
 - [Definition](#definition)
 - [How is a risk model defined?](#how-is-a-risk-model-defined)
 - [Retrieving a risk model schema](#_heading=h.3ygebqi)
-- [SoFIE Core Types](#_heading=h.2dlolyb)
+  - [SoFIE Core Types](#_heading=h.2dlolyb)
 - [Creating a newly initialized risk model (retrieving a risk template)](#creating-a-newly-initialized-risk-model-retrieving-a-risk-template)
 - [Validating a risk model](#validating-a-risk-model)
 - [Generation of custom premiums](#generation-of-custom-premiums)
@@ -60,13 +60,13 @@ certain API updates may not be immediately reflected in this document.
 - [Rate calculation](#rate-calculation)
 - [Retrieve supported rate methods](#retrieve-supported-rate-methods)
 - [Invoking rate calculation for a rate method](#invoking-rate-calculation-for-a-rate-method)
-- [Important](#important)
-- [Rate components](#rate-components)
+  - [Important](#important)
+  - [Rate components](#rate-components)
 
 [6.Broker and product configuration](#broker-and-product-configuration)
 - [Best practices](#best-practices)
-- [Broker](#broker)
-- [Product](#product)
+  - [Broker](#broker)
+  - [Product](#product)
 - [Retrieval of configuration](#retrieval-of-configuration)
 
 [7.Temporal reference data](#temporal-reference-data)
@@ -150,7 +150,7 @@ certain API updates may not be immediately reflected in this document.
 ## HTTPS/HSTS
 
 -   All our APIs and frontends are only available via HTTPS. We use
-    [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security)
+    <u>[HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security)</u>
     in order to enforce this.
 
 -   We do not accept certain insecure cyphers. We do not make
@@ -164,21 +164,21 @@ certain API updates may not be immediately reflected in this document.
 ## CORS
 
 We require the use of
-[CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+<u>[CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)</u>
 headers for interactive (browser) APIs. We do NOT support wildcards.
 
 ## HTTP Authentication
 
-We use the HTTP Authorization header and a [Bearer
-token](https://swagger.io/docs/specification/authentication/bearer-authentication/)
+We use the HTTP Authorization header and a <u>[Bearer
+token](https://swagger.io/docs/specification/authentication/bearer-authentication/)</u>
 for authentication. The bearer token can either be an API key,
 associated with a specific IP origin known to our API gateway, or a user
 authentication token received from the login endpoint, associated with
 the IP address at the time of login (limited lifetime).
 
 *We expect to switch to a new way of authentication and authorization in
-the near future. The most likely candidate is the use of [JSON Web
-Tokens](https://jwt.io/).*
+the near future. The most likely candidate is the use of <u>[JSON Web
+Tokens](https://jwt.io/)</u>.*
 
 ## Number formats
 
@@ -239,14 +239,14 @@ need to occur:
 
 1.  The core makes a request to an API of the plugin
 
-2.  The core provides a [bearer
-    token](https://datatracker.ietf.org/doc/html/rfc6750)
+2.  The core provides a <u>[bearer
+    token](https://datatracker.ietf.org/doc/html/rfc6750)</u>
     within the **Authorization** header, which ensures that the plugin
     will allow the request
 
 3.  The core provides the **X-RethinkIT-Request-Auth** header, which can
-    in turn be used by the plugin to get access to the core <ins>during the
-    lifetime of the request</ins>
+    in turn be used by the plugin to get access to the core <u>during the
+    lifetime of the request</u>
 
     a.  The plugin retrieves product and broker configuration from the
         core using the specified token as the bearer token.
@@ -256,7 +256,7 @@ need to occur:
 A SoFIE plugin is a **customer specific** application module that
 contains the customer specific application's logic for one or more
 product ranges. The module integrates with the Core system via
-OpenAPI<sup>1</sup> (REST) web services, and provides the following features:
+OpenAPI<sup>[^1](#1)</sup> (REST) web services, and provides the following features:
 
 1.  Definition of the risk model **schema** for each type of product
     range
@@ -365,123 +365,96 @@ plugin. The core will request it once the plugin is added into the core,
 and refresh it on a regular basis. The plugin must supply a valid schema
 via the following endpoint.
 
-## ----------------- Checked Up to here
-[![](media/image2.png){width="3.8333333333333335in"
-height="4.138888888888889in"}](https://www.plantuml.com/plantuml/img/TP0z3i8m38NtdE9Te1Ue44i7raf8B4nMueBLD2c9YyJjQSgFg835Yj_t_6Gdzn96IZGWwytpN9DOdGPlL7JkcyIa4WDY1yAOefki8b4uiJbMMpGnCMhOOcEqAqvMvLhaOZABypbHuq1UN669BnDdVUFMJoS9DNQi69St97JHF7HKxuJs0_uQJf9x3D6nHxPd7kWxOh_eSDn9a7BbloMV0MlQqAo-q75JLQ_FYBrnl3h-3W00)
-
-[]{#_heading=h.3ygebqi .anchor}
+<div align="center">
+    <img src="resources/plugins-img-1.png">
+</div>
 
 ## Retrieving a risk model schema
 
 **Required method** for each plugin. Retrieves the schema that describes
 the risk model fields.
 
-+--------------+------------------------------------+------------------+
-| **Get the    |                                    |                  |
-| risk model   |                                    |                  |
-| schema       |                                    |                  |
-| (simple)**   |                                    |                  |
-+==============+====================================+==================+
-| **METHOD**   | **URI**                            | **RESPONSE**     |
-+--------------+------------------------------------+------------------+
-| **GET**      | /schema                            | → **200 OK**     |
-|              |                                    |                  |
-| (-)          |                                    | (a               |
-|              |                                    | pplication/json) |
-+--------------+------------------------------------+------------------+
-| **HEADER**   | VALUE                              |                  |
-+--------------+------------------------------------+------------------+
-| **Accept**   | application/json                   |                  |
-+--------------+------------------------------------+------------------+
-| **Accep      | UTF-8                              |                  |
-| t-Encoding** |                                    |                  |
-+--------------+------------------------------------+------------------+
-| **Response   |                                    |                  |
-| body         |                                    |                  |
-| example -    |                                    |                  |
-| Schema V1**  |                                    |                  |
-+--------------+------------------------------------+------------------+
-| {\           |                                    |                  |
-| demoField :  |                                    |                  |
-| {\           |                                    |                  |
-| required:    |                                    |                  |
-| true,\       |                                    |                  |
-| label: {\    |                                    |                  |
-| en:          |                                    |                  |
-| \            |                                    |                  |
-| "English\",\ |                                    |                  |
-| nl:          |                                    |                  |
-| \"Ne         |                                    |                  |
-| derlands\",\ |                                    |                  |
-| fr:          |                                    |                  |
-| \            |                                    |                  |
-| "Français\"\ |                                    |                  |
-| },\          |                                    |                  |
-| type:        |                                    |                  |
-| \"string\",\ |                                    |                  |
-| default:     |                                    |                  |
-| \"Hello,     |                                    |                  |
-| world\"\     |                                    |                  |
-| },           |                                    |                  |
-|              |                                    |                  |
-| d            |                                    |                  |
-| emoListField |                                    |                  |
-| : {\         |                                    |                  |
-| required:    |                                    |                  |
-| false,\      |                                    |                  |
-| label: {\    |                                    |                  |
-| en:          |                                    |                  |
-| \"English    |                                    |                  |
-| 2\",\        |                                    |                  |
-| nl:          |                                    |                  |
-| \"Nederlands |                                    |                  |
-| 2\",\        |                                    |                  |
-| fr:          |                                    |                  |
-| \"Français   |                                    |                  |
-| 2\"\         |                                    |                  |
-| },\          |                                    |                  |
-| type:        |                                    |                  |
-| \"string\",  |                                    |                  |
-|              |                                    |                  |
-| subtype:     |                                    |                  |
-| \"list\"\    |                                    |                  |
-| default:     |                                    |                  |
-| \"no\",      |                                    |                  |
-|              |                                    |                  |
-| options: {   |                                    |                  |
-|              |                                    |                  |
-| no: {        |                                    |                  |
-|              |                                    |                  |
-| label: {     |                                    |                  |
-|              |                                    |                  |
-| en: \"No\",  |                                    |                  |
-|              |                                    |                  |
-| fr: \"Non\", |                                    |                  |
-|              |                                    |                  |
-| nl: \"Nee\"  |                                    |                  |
-|              |                                    |                  |
-| }            |                                    |                  |
-|              |                                    |                  |
-| },           |                                    |                  |
-|              |                                    |                  |
-| yes: {       |                                    |                  |
-|              |                                    |                  |
-| label: {     |                                    |                  |
-|              |                                    |                  |
-| en: \"Yes\", |                                    |                  |
-|              |                                    |                  |
-| fr: \"Oui\", |                                    |                  |
-|              |                                    |                  |
-| nl: \"Ja\"   |                                    |                  |
-|              |                                    |                  |
-| }            |                                    |                  |
-|              |                                    |                  |
-| },           |                                    |                  |
-|              |                                    |                  |
-| }\           |                                    |                  |
-| }\           |                                    |                  |
-| }            |                                    |                  |
-+--------------+------------------------------------+------------------+
+<table style="display: flex; justify-content: center;">
+  <tr>
+    <th colspan="3">Get the risk model schema (simple)</th>
+  </tr>
+
+  <tr>
+    <th>METHOD</th>
+    <th>URI</th>
+    <th>RESPONSE</th>
+  </tr>
+  <tr>
+    <td>GET <br/>(-)</td>
+    <td>/schema</td>
+    <td>→ 200 OK
+(application/json)
+</td>
+  </tr>
+
+  <tr>
+    <th>HEADER</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>Accept</td>
+    <td colspan="2">application/json</td>
+  </tr>
+  <tr>
+    <td>Accept-Encoding</td>
+    <td colspan="2">UTF-8</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Response body example - Schema V1</th>
+  </tr>
+  <tr>
+    <td colspan="3">
+        <pre>
+{
+  demoField : {
+    required: true,
+    label: {
+      en: "English",
+      nl: "Nederlands",
+      fr: "Français"
+    },
+    type: "string",
+    default: "Hello, world"
+  },
+  demoListField : {
+    required: false,
+    label: {
+      en: "English 2",
+      nl: "Nederlands 2",
+      fr: "Français 2"
+    },
+    type: "string",
+    subtype: "list"
+    default: "no",
+    options: {
+      no: {
+        label: {
+          en: "No",
+          fr: "Non",
+          nl: "Nee"
+        }
+      },
+      yes: {
+        label: {
+          en: "Yes",
+          fr: "Oui",
+          nl: "Ja"
+        }
+      },
+    }
+  }
+}
+
+</pre>
+    </td>
+  </tr>
+</table>
 
 The response returns a JSON object, of which each key is the name of a
 field in the risk schema, and the corresponding object describes the
@@ -524,24 +497,20 @@ The following properties are supported in plugin **Schema V1**:
 > **NOTE: Schema V1** supports **ONLY** top-level property definitions.
 > It is **NOT** allowed to have nested fields or create custom types,
 > such as:
-
-{\
-demoField: {
-
-~~nestedField: {~~
-
-~~required: true,\
-label: {\
-en: \"English\",\
-nl: \"Nederlands\",\
-fr: \"Français\"\
-},\
-type: \"string\",~~
-
-~~}~~
-
-}\
-}
+><pre>{
+>    demoField: {
+>        <del>nestedField: {
+>            required: true,
+>            label: {
+>                en: "English",
+>                nl: "Nederlands",
+>                fr: "Français"
+>            },
+>            type: "string\",
+>        }</del>
+>    }
+>}
+></pre>
 
 -   **required**\
     An optional field that indicates an (always) mandatory field.
@@ -598,26 +567,21 @@ type: \"string\",~~
         number type. Needed when SoFIE's risk-model rendering module is
         used.
 
--   **min**
+  -   **min**\
+      Specifies a minimum value for a number. Allowed ONLY for type = number | numerical
 
-> Specifies a minimum value for a number. Allowed ONLY for type = number
-> \| numerical
+  -   **max**\
+      Specifies a maximum value for a number. Allowed ONLY for type = number | numerical
 
--   **max**
+  -   **pattern**|
+  A Regex pattern for a string value. Allowed ONLY for type = string
 
-> Specifies a maximum value for a number. Allowed ONLY for type = number
-> \| numerical
-
--   **pattern**
-
-> A Regex pattern for a string value. Allowed ONLY for type = string
-
--   **options\
-    **The options object can be anything, and depends on the type and
+-   **options**\
+    The options object can be anything, and depends on the type and
     subtype. It is extra configuration for the field
 
-    -   **For "Contact" fields\
-        ***Note: Some of the fields below are part for the Address
+    -   **For "Contact" fields**\
+        *Note: Some of the fields below are part for the Address
         object in the Contact*
 
         -   titleRequired: boolean
@@ -649,26 +613,20 @@ type: \"string\",~~
         -   countryRequired: boolean - Automatically assumed "**true**"
             if **postalCodeRequired** is **true**.
 
-    -   **For "Address" fields**
+    -   **For "Address" fields**\
+        *NO options supported at the moment*
+    
+    -   **For 'list' fields**
+        -   **\[key\]: {nl,fr,en}**\
+            A key for each option, with translated labels.
 
-> *NO options supported at the moment*
+    -   **For 'referenceData' fields:**
+        -   **typeName**\
+          The <u>name</u> of the reference data type
 
--   **For 'list' fields**
-
-    -   **\[key\]: {nl,fr,en}**\
-        A key for each option, with translated labels.
-
--   **For 'referenceData' fields:**
-
-    -   **typeName**\
-        The [name]{.underline} of the reference data type
-
--   **For Partner fields**
-
-    -   **type**\
-        The [name]{.underline} of the partner type, e.g. 'syndic'
-
-[]{#_heading=h.2dlolyb .anchor}
+    -   **For Partner fields**
+        -   **type**\
+        The <u>name</u> of the partner type, e.g. 'syndic'
 
 ### SoFIE Core Types
 
@@ -722,39 +680,51 @@ risk model, and adds defaults for the fields. The outcome of this call
 MAY be a valid risk model, but will most likely need additional input
 before it's valid.
 
-+------------------+--------------------------------+------------------+
-| **Get a new      |                                |                  |
-| instance of the  |                                |                  |
-| risk model**     |                                |                  |
-+==================+================================+==================+
-| **METHOD**       | **URI**                        | **RESPONSE**     |
-+------------------+--------------------------------+------------------+
-| **GET**          | /                              | → **201          |
-|                  |                                | CREATED**        |
-| (-)              |                                |                  |
-|                  |                                | (a               |
-|                  |                                | pplication/json) |
-+------------------+--------------------------------+------------------+
-| **HEADER**       | VALUE                          |                  |
-+------------------+--------------------------------+------------------+
-| **Accept**       | application/json               |                  |
-+------------------+--------------------------------+------------------+
-| **A              | UTF-8                          |                  |
-| ccept-Encoding** |                                |                  |
-+------------------+--------------------------------+------------------+
-| **Response body  |                                |                  |
-| example**        |                                |                  |
-+------------------+--------------------------------+------------------+
-| {\               |                                |                  |
-| demoField :      |                                |                  |
-| \"Hello,         |                                |                  |
-| world\",         |                                |                  |
-|                  |                                |                  |
-| demoListField :  |                                |                  |
-| \"no\",\         |                                |                  |
-| version: 3\      |                                |                  |
-| }                |                                |                  |
-+------------------+--------------------------------+------------------+
+<table style="display: flex; justify-content: center;">
+  <tr>
+    <th colspan="3">Get a new instance of the risk model</th>
+  </tr>
+
+  <tr>
+    <th>METHOD</th>
+    <th>URI</th>
+    <th>RESPONSE</th>
+  </tr>
+  <tr>
+    <td>GET <br/>(-)</td>
+    <td>/</td>
+    <td>→ 201 CREATED <br/>
+(application/json)
+</td>
+  </tr>
+
+  <tr>
+    <th>HEADER</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>Accept</td>
+    <td colspan="2">application/json</td>
+  </tr>
+  <tr>
+    <td>Accept-Encoding</td>
+    <td colspan="2">UTF-8</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Response body example</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>
+{
+  demoField : "Hello, world",
+  demoListField : "no",
+  version: 3
+}
+</pre>
+    </td>
+  </tr>
+</table>
 
 The response returns a JSON object, where each key indicates a field
 name of the risk model. Each field is initialized with a sensible
@@ -777,133 +747,112 @@ required/optional checking - it is up to the plugin to perform most
 validation. The core will automatically call upon the validation method
 wherever appropriate.
 
-+------------------+--------------------------------+------------------+
-| **Validate an    |                                |                  |
-| instance of the  |                                |                  |
-| risk model**     |                                |                  |
-+==================+================================+==================+
-| **METHOD**       | **URI**                        | **RESPONSE**     |
-+------------------+--------------------------------+------------------+
-| **POST**         | /                              | → **200 OK**     |
-|                  |                                |                  |
-| (a               |                                | (a               |
-| pplication/json) |                                | pplication/json) |
-+------------------+--------------------------------+------------------+
-| **Request body   |                                |                  |
-| example - A risk |                                |                  |
-| model to be      |                                |                  |
-| transformed and  |                                |                  |
-| validated**      |                                |                  |
-+------------------+--------------------------------+------------------+
-| {\               |                                |                  |
-| demoField :      |                                |                  |
-| \"Hello,         |                                |                  |
-| world\",         |                                |                  |
-|                  |                                |                  |
-| demoListField :  |                                |                  |
-| \"yes\",\        |                                |                  |
-| version: 2\      |                                |                  |
-| }                |                                |                  |
-+------------------+--------------------------------+------------------+
-| **HEADER**       | VALUE                          |                  |
-+------------------+--------------------------------+------------------+
-| **Accept**       | application/json               |                  |
-+------------------+--------------------------------+------------------+
-| **A              | UTF-8                          |                  |
-| ccept-Encoding** |                                |                  |
-+------------------+--------------------------------+------------------+
-| **QUERY PARAM**  | VALUE                          |                  |
-+------------------+--------------------------------+------------------+
-| **transform**    | boolean - Whether to apply     |                  |
-|                  | transformations after applying |                  |
-|                  | the validations                |                  |
-+------------------+--------------------------------+------------------+
-| **startDate**    | ISO 8601 datetime - The start  |                  |
-|                  | date of the risk model. The    |                  |
-|                  | plugin may use it in case the  |                  |
-|                  | validations / transformations  |                  |
-|                  | depend on the "start date" of  |                  |
-|                  | the risk model.                |                  |
-+------------------+--------------------------------+------------------+
-| **brokerId**     | A reference to a SoFIE broker. |                  |
-|                  | Can be used to retrieve the    |                  |
-|                  | broker configuration through   |                  |
-|                  | an API call in case the plugin |                  |
-|                  | validation requires it.        |                  |
-+------------------+--------------------------------+------------------+
-| **productId**    | A reference to a SoFIE         |                  |
-|                  | product. Can be used to        |                  |
-|                  | retrieve the product           |                  |
-|                  | configuration through an API   |                  |
-|                  | call in case the plugin        |                  |
-|                  | validation requires it.        |                  |
-+------------------+--------------------------------+------------------+
-| **Response body  |                                |                  |
-| example - A      |                                |                  |
-| transformed and  |                                |                  |
-| validated risk   |                                |                  |
-| model**          |                                |                  |
-+------------------+--------------------------------+------------------+
-| {\               |                                |                  |
-| demoField :      |                                |                  |
-| \"Hello,         |                                |                  |
-| world\",\        |                                |                  |
-| version: 3, *//  |                                |                  |
-| Transformation:  |                                |                  |
-| Optional field   |                                |                  |
-| version upgraded |                                |                  |
-| to 3*            |                                |                  |
-|                  |                                |                  |
-| created:         |                                |                  |
-| \"2022-01-01T00: |                                |                  |
-| 00:00.000+0100\" |                                |                  |
-| *//              |                                |                  |
-| Transformation:  |                                |                  |
-| Optional*        |                                |                  |
-|                  |                                |                  |
-| *// field        |                                |                  |
-| "creationDate"   |                                |                  |
-| added*\          |                                |                  |
-| }                |                                |                  |
-+------------------+--------------------------------+------------------+
-| **Error 422 -    |                                |                  |
-| response body    |                                |                  |
-| example - Errors |                                |                  |
-| per field**      |                                |                  |
-+------------------+--------------------------------+------------------+
-| {\               |                                |                  |
-| demoField : {\   |                                |                  |
-| required: true,  |                                |                  |
-| *// Field is     |                                |                  |
-| required*\       |                                |                  |
-| min: true, *//   |                                |                  |
-| Field must be at |                                |                  |
-| least "min"      |                                |                  |
-| number of        |                                |                  |
-| characters long  |                                |                  |
-| (as*             |                                |                  |
-|                  |                                |                  |
-| *// defined in   |                                |                  |
-| the schema)*\    |                                |                  |
-| customError: {   |                                |                  |
-| *// Custom error |                                |                  |
-| from the         |                                |                  |
-| plugin - the key |                                |                  |
-| is determined    |                                |                  |
-| by*              |                                |                  |
-|                  |                                |                  |
-| *// the plugin.  |                                |                  |
-| Contains a set   |                                |                  |
-| of i18b labels*\ |                                |                  |
-| en: \"Some text  |                                |                  |
-| with describing  |                                |                  |
-| the error\",\    |                                |                  |
-| fr: \"\...\",\   |                                |                  |
-| nl: \"\...\"\    |                                |                  |
-| }\               |                                |                  |
-| }\               |                                |                  |
-| }                |                                |                  |
-+------------------+--------------------------------+------------------+
+<table style="display: flex; justify-content: center;">
+  <tr>
+    <th colspan="3">Validate an instance of the risk model</th>
+  </tr>
+
+  <tr>
+    <th>METHOD</th>
+    <th>URI</th>
+    <th>RESPONSE</th>
+  </tr>
+  <tr>
+    <td>POST <br/>(-)</td>
+    <td>/</td>
+    <td>→ 200 OK
+(application/json)
+</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Request body example - A risk model to be transformed and validated</th>
+  </tr>
+  <tr>
+  <tr>
+    <td colspan="3"><pre>
+{
+  demoField : "Hello, world",
+  demoListField : "yes",
+  version: 2
+}</pre>
+    </td>
+  </tr>
+
+  <tr>
+    <th>HEADER</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>Accept</td>
+    <td colspan="2">application/json</td>
+  </tr>
+  <tr>
+    <td>Accept-Encoding</td>
+    <td colspan="2">UTF-8</td>
+  </tr>
+
+  <tr>
+    <th>QUERY PARAM</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>transform</td>
+    <td colspan="2">boolean - Whether to apply transformations after applying the validations/json</td>
+  </tr>
+  <tr>
+    <td>startDate</td>
+    <td colspan="2">ISO 8601 datetime - The start date of the risk model. The plugin may use it in case the validations / transformations depend on the “start date” of the risk model.</td>
+  </tr>
+  <tr>
+    <td>brokerId</td>
+    <td colspan="2">A reference to a SoFIE broker. Can be used to retrieve the broker configuration through an API call in case the plugin validation requires it.</td>
+  </tr>
+  <tr>
+    <td>productId</td>
+    <td colspan="2">A reference to a SoFIE product. Can be used to retrieve the product configuration through an API call in case the plugin validation requires it.</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Response body example - A transformed and validated risk model</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>
+{
+  demoField : "Hello, world",
+  version: 3, // Transformation: Optional field version upgraded to 3
+  created: "2022-01-01T00:00:00.000+0100" // Transformation: Optional 
+                                          // field “creationDate” added
+}
+
+</pre>
+    </td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Error 422 - response body example - Errors per field</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>
+{
+  demoField : {
+    required: true, // Field is required
+    min: true, // Field must be at least “min” number of characters long (as 
+               // defined in the schema)
+    customError: { // Custom error from the plugin - the key is determined by
+                   // the plugin. Contains a set of i18b labels
+      en: "Some text with describing the error",
+      fr: "...",
+      nl: "..."
+    }
+  }
+}
+
+
+</pre>
+    </td>
+  </tr>
+</table>
 
 Note that in the above example, the risk model was returned with
 transformations: the plugin evaluated the risk model, and decided it
@@ -951,23 +900,17 @@ custom fee rates for certain brokers.
 For example, a broker configuration that overwrites a default value for
 a field in the risk model might look like:
 
-{
+<pre>{
+      "customer": "test-customer",
+      "plugin": "test-plugin",
+      "rateMethod": "legal",
+      "op": "replace",
+      "path": "/demoField",
+      "value": "justADemo"
+}</pre>
 
-\"customer\": \"test-customer\",
-
-\"plugin\": \"test-plugin\",
-
-\"rateMethod\": \"legal\",
-
-\"op\": \"replace\",
-
-\"path\": \"/demoField\",
-
-\"value\": \"justADemo\"
-
-}
-
-Transforming a risk model
+##
+# Transforming a risk model
 
 **Optional API method.** As the core of SoFIE has no internal knowledge
 of the risk model and its business rules, it allows the plugin to
@@ -976,92 +919,83 @@ the transform method if supported and persist the version of the risk
 model instance that was returned as a response. If the plugin does
 **NOT** implement the endpoint, it must return a **404** error.
 
-+------------------+--------------------------------+------------------+
-| **Transform an   |                                |                  |
-| instance of the  |                                |                  |
-| risk model**     |                                |                  |
-+==================+================================+==================+
-| **METHOD**       | **URI**                        | **RESPONSE**     |
-+------------------+--------------------------------+------------------+
-| **POST**         | /transform                     | → **200 OK**     |
-|                  |                                |                  |
-| (a               |                                | (a               |
-| pplication/json) |                                | pplication/json) |
-+------------------+--------------------------------+------------------+
-| **Request body   |                                |                  |
-| example - A risk |                                |                  |
-| model to be      |                                |                  |
-| transformed**    |                                |                  |
-+------------------+--------------------------------+------------------+
-| {\               |                                |                  |
-| demoField :      |                                |                  |
-| \"Hello,         |                                |                  |
-| world\",         |                                |                  |
-|                  |                                |                  |
-| demoListField :  |                                |                  |
-| \"yes\",\        |                                |                  |
-| version: 2\      |                                |                  |
-| }                |                                |                  |
-+------------------+--------------------------------+------------------+
-| **HEADER**       | VALUE                          |                  |
-+------------------+--------------------------------+------------------+
-| **Accept**       | application/json               |                  |
-+------------------+--------------------------------+------------------+
-| **A              | UTF-8                          |                  |
-| ccept-Encoding** |                                |                  |
-+------------------+--------------------------------+------------------+
-| **QUERY PARAM**  | VALUE                          |                  |
-+------------------+--------------------------------+------------------+
-| **startDate**    | ISO 8601 datetime - The start  |                  |
-|                  | date of the risk model. The    |                  |
-|                  | plugin may use it in case the  |                  |
-|                  | transformations depend on the  |                  |
-|                  | "start date" of the risk       |                  |
-|                  | model.                         |                  |
-+------------------+--------------------------------+------------------+
-| **brokerId**     | A reference to a SoFIE broker. |                  |
-|                  | Can be used to retrieve the    |                  |
-|                  | broker configuration through   |                  |
-|                  | an API call in case the plugin |                  |
-|                  | validation requires it.        |                  |
-+------------------+--------------------------------+------------------+
-| **productId**    | A reference to a SoFIE         |                  |
-|                  | product. Can be used to        |                  |
-|                  | retrieve the product           |                  |
-|                  | configuration through an API   |                  |
-|                  | call in case the plugin        |                  |
-|                  | validation requires it.        |                  |
-+------------------+--------------------------------+------------------+
-| **Response body  |                                |                  |
-| example - A      |                                |                  |
-| transformed and  |                                |                  |
-| validated risk   |                                |                  |
-| model**          |                                |                  |
-+------------------+--------------------------------+------------------+
-| {\               |                                |                  |
-| demoField :      |                                |                  |
-| \"Hello,         |                                |                  |
-| world\",\        |                                |                  |
-| version: 3, *//  |                                |                  |
-| Transformation:  |                                |                  |
-| Optional field   |                                |                  |
-| version upgraded |                                |                  |
-| to 3*            |                                |                  |
-|                  |                                |                  |
-| created:         |                                |                  |
-| \"2022-01-01T00: |                                |                  |
-| 00:00.000+0100\" |                                |                  |
-| *//              |                                |                  |
-| Transformation:  |                                |                  |
-| Optional*        |                                |                  |
-|                  |                                |                  |
-| *// field        |                                |                  |
-| "creationDate"   |                                |                  |
-| added*\          |                                |                  |
-| }                |                                |                  |
-+------------------+--------------------------------+------------------+
+<table style="display: flex; justify-content: center;">
+  <tr>
+    <th colspan="3">Transform an instance of the risk model</th>
+  </tr>
 
-Transforming a risk model for a new Contract version
+  <tr>
+    <th>METHOD</th>
+    <th>URI</th>
+    <th>RESPONSE</th>
+  </tr>
+  <tr>
+    <td>POST <br/>(application/json)</td>
+    <td>/transform</td>
+    <td>→ 200 OK
+(application/json)
+</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Request body example - A risk model to be transformed</th>
+  </tr>
+  <tr>
+  <tr>
+    <td colspan="3"><pre>{
+  demoField : "Hello, world",
+  demoListField : "yes",
+  version: 2
+}</pre>
+    </td>
+  </tr>
+
+  <tr>
+    <th>HEADER</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>Accept</td>
+    <td colspan="2">application/json</td>
+  </tr>
+  <tr>
+    <td>Accept-Encoding</td>
+    <td colspan="2">UTF-8</td>
+  </tr>
+
+  <tr>
+    <th>QUERY PARAM</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>startDate</td>
+    <td colspan="2">ISO 8601 datetime - The start date of the risk model. The plugin may use it in case the transformations depend on the “start date” of the risk model.</td>
+  </tr>
+  <tr>
+    <td>brokerId</td>
+    <td colspan="2">A reference to a SoFIE broker. Can be used to retrieve the broker configuration through an API call in case the plugin validation requires it.</td>
+  </tr>
+  <tr>
+    <td>productId</td>
+    <td colspan="2">A reference to a SoFIE product. Can be used to retrieve the product configuration through an API call in case the plugin validation requires it.</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Response body example - A transformed and validated risk model</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>{
+  demoField : "Hello, world",
+  version: 3, // Transformation: Optional field version upgraded to 3
+  created: "2022-01-01T00:00:00.000+0100" // Transformation: Optional 
+                                          // field “creationDate” added
+}</pre>
+    </td>
+  </tr>
+</table>
+
+#
+# Transforming a risk model for a new Contract version
 
 **Optional API method.** Whenever **addenda** are created, updated,
 simulated and executed, contract version instances are being created in
@@ -1080,98 +1014,86 @@ plugin does **NOT** implement the endpoint, it must return a **404**
 error. If the risk model contains error, the should be reported in the
 same format as in the validation endpoint.
 
-+------------------+--------------------------------+------------------+
-| **Transform an   |                                |                  |
-| instance of the  |                                |                  |
-| risk model when  |                                |                  |
-| creating a       |                                |                  |
-| contract         |                                |                  |
-| version**        |                                |                  |
-+==================+================================+==================+
-| **METHOD**       | **URI**                        | **RESPONSE**     |
-+------------------+--------------------------------+------------------+
-| **POST**         | /contract-version              | → **200 OK**     |
-|                  |                                |                  |
-| (a               |                                | (a               |
-| pplication/json) |                                | pplication/json) |
-+------------------+--------------------------------+------------------+
-| **Request body   |                                |                  |
-| example - A risk |                                |                  |
-| model to be      |                                |                  |
-| transformed and  |                                |                  |
-| additional       |                                |                  |
-| context**        |                                |                  |
-+------------------+--------------------------------+------------------+
-| {\               |                                |                  |
-| riskModel: {     |                                |                  |
-|                  |                                |                  |
-| demoField :      |                                |                  |
-| \"Hello,         |                                |                  |
-| world\",         |                                |                  |
-|                  |                                |                  |
-| demoListField :  |                                |                  |
-| \"yes\",\        |                                |                  |
-| version: 2       |                                |                  |
-|                  |                                |                  |
-| },               |                                |                  |
-|                  |                                |                  |
-| startDate:       |                                |                  |
-| \                |                                |                  |
-| "2024-01-01T00:0 |                                |                  |
-| 0:00.000+0100\"\ |                                |                  |
-| }                |                                |                  |
-+------------------+--------------------------------+------------------+
-| **HEADER**       | VALUE                          |                  |
-+------------------+--------------------------------+------------------+
-| **Accept**       | application/json               |                  |
-+------------------+--------------------------------+------------------+
-| **A              | UTF-8                          |                  |
-| ccept-Encoding** |                                |                  |
-+------------------+--------------------------------+------------------+
-| **QUERY PARAM**  | VALUE                          |                  |
-+------------------+--------------------------------+------------------+
-| **brokerId**     | A reference to a SoFIE broker. |                  |
-|                  | Can be used to retrieve the    |                  |
-|                  | broker configuration through   |                  |
-|                  | an API call in case the plugin |                  |
-|                  | validation requires it.        |                  |
-+------------------+--------------------------------+------------------+
-| **productId**    | A reference to a SoFIE         |                  |
-|                  | product. Can be used to        |                  |
-|                  | retrieve the product           |                  |
-|                  | configuration through an API   |                  |
-|                  | call in case the plugin        |                  |
-|                  | validation requires it.        |                  |
-+------------------+--------------------------------+------------------+
-| **Response body  |                                |                  |
-| example - A      |                                |                  |
-| transformed and  |                                |                  |
-| validated risk   |                                |                  |
-| model**          |                                |                  |
-+------------------+--------------------------------+------------------+
-| {\               |                                |                  |
-| demoField :      |                                |                  |
-| \"Hello,         |                                |                  |
-| world\",\        |                                |                  |
-| version: 2,      |                                |                  |
-|                  |                                |                  |
-| indexValue: 105  |                                |                  |
-| *//              |                                |                  |
-| Transformation   |                                |                  |
-| for a contract   |                                |                  |
-| version:         |                                |                  |
-| Persisting a*    |                                |                  |
-|                  |                                |                  |
-| *// temporal     |                                |                  |
-| value*\          |                                |                  |
-| }                |                                |                  |
-+------------------+--------------------------------+------------------+
+<table style="display: flex; justify-content: center;">
+  <tr>
+    <th colspan="3">Transform an instance of the risk model when creating a contract version</th>
+  </tr>
+
+  <tr>
+    <th>METHOD</th>
+    <th>URI</th>
+    <th>RESPONSE</th>
+  </tr>
+  <tr>
+    <td>POST <br/>(application/json)</td>
+    <td>/contract-version</td>
+    <td>→ 200 OK
+(application/json)
+</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Request body example - A risk model to be transformed and additional context</th>
+  </tr>
+  <tr>
+  <tr>
+    <td colspan="3"><pre>{
+  riskModel: {
+    demoField : "Hello, world",
+    demoListField : "yes",
+    version: 2
+  },
+  startDate: "2024-01-01T00:00:00.000+0100"
+}
+</pre>
+    </td>
+  </tr>
+
+  <tr>
+    <th>HEADER</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>Accept</td>
+    <td colspan="2">application/json</td>
+  </tr>
+  <tr>
+    <td>Accept-Encoding</td>
+    <td colspan="2">UTF-8</td>
+  </tr>
+
+  <tr>
+    <th>QUERY PARAM</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>brokerId</td>
+    <td colspan="2">A reference to a SoFIE broker. Can be used to retrieve the broker configuration through an API call in case the plugin validation requires it.</td>
+  </tr>
+  <tr>
+    <td>productId</td>
+    <td colspan="2">A reference to a SoFIE product. Can be used to retrieve the product configuration through an API call in case the plugin validation requires it.</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Response body example - A transformed and validated risk model</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>{
+  demoField : "Hello, world",
+  version: 2,     
+  indexValue: 105 // Transformation for a contract version: Persisting a 
+                  // temporal value
+}</pre>
+    </td>
+  </tr>
+</table>
 
 ## Generation of custom premiums
 
 Where the core is responsible for scaling and emitting premiums due to
 new terms, or due to changes in the contract, it is also possible to
-emit [custom premiums]{.underline} that depend on certain events in the
+emit <u>custom premiums</u> that depend on certain events in the
 timeline of a contract. While the core has the responsibility of
 comparing any past custom premiums with eventual new custom premiums and
 compensating for their differences, the plugin is responsible for
@@ -1221,205 +1143,153 @@ The plugin must communicate the premiums with additional labels and
 target account information to the core. The core will resolve the target
 accounts and create the actual premiums.
 
-+-------------------+-------------------------------+------------------+
-| **Generate custom |                               |                  |
-| premiums for the  |                               |                  |
-| contract          |                               |                  |
-| timeline**        |                               |                  |
-+===================+===============================+==================+
-| **METHOD**        | **URI**                       | **RESPONSE**     |
-+-------------------+-------------------------------+------------------+
-| **POST**          | /custom-premiums              | → **200 OK**     |
-|                   |                               |                  |
-| (                 |                               | (a               |
-| application/json) |                               | pplication/json) |
-+-------------------+-------------------------------+------------------+
-| **Request body    |                               |                  |
-| example - An      |                               |                  |
-| array of contract |                               |                  |
-| versions          |                               |                  |
-| representing the  |                               |                  |
-| timeline**        |                               |                  |
-+-------------------+-------------------------------+------------------+
-| \[{\              |                               |                  |
-| startDate:        |                               |                  |
-| \"2021-01-01T00:0 |                               |                  |
-| 0:00.000+0100\",\ |                               |                  |
-| brokerId:         |                               |                  |
-| \"\...\", *// Id  |                               |                  |
-| of the managing   |                               |                  |
-| broker*\          |                               |                  |
-| productId:        |                               |                  |
-| \"\...\", *// Id  |                               |                  |
-| of the product if |                               |                  |
-| applicable*\      |                               |                  |
-| riskModel:        |                               |                  |
-| {\...}, *// Risk  |                               |                  |
-| model copy*\      |                               |                  |
-| f                 |                               |                  |
-| inancialBrokerId: |                               |                  |
-| \"\...\", *// Id  |                               |                  |
-| of the financial  |                               |                  |
-| broker,*\         |                               |                  |
-| riskLevel:        |                               |                  |
-| \"low             |                               |                  |
-| \|medium\|high\", |                               |                  |
-| *// Risk level    |                               |                  |
-| (optional)*\      |                               |                  |
-| accepted: true \| |                               |                  |
-| false, *// Not    |                               |                  |
-| insurable but     |                               |                  |
-| accepted by risk  |                               |                  |
-| carriers,*\       |                               |                  |
-| insurable: true   |                               |                  |
-| \| false, *//     |                               |                  |
-| Insurable or      |                               |                  |
-| not*\             |                               |                  |
-| language: "nl" // |                               |                  |
-| Current language  |                               |                  |
-|                   |                               |                  |
-| // Some other     |                               |                  |
-| fields are        |                               |                  |
-| available, but    |                               |                  |
-| not relevant to   |                               |                  |
-| this routine\     |                               |                  |
-| }\]               |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **HEADER**        | VALUE                         |                  |
-+-------------------+-------------------------------+------------------+
-| **Accept**        | application/json              |                  |
-+-------------------+-------------------------------+------------------+
-| **                | UTF-8                         |                  |
-| Accept-Encoding** |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **Response body   |                               |                  |
-| example - A       |                               |                  |
-| transformed and   |                               |                  |
-| validated risk    |                               |                  |
-| model**           |                               |                  |
-+-------------------+-------------------------------+------------------+
-| {\                |                               |                  |
-| customPremiums:   |                               |                  |
-| \[\               |                               |                  |
-| {\                |                               |                  |
-| c                 |                               |                  |
-| ontractVersionId: |                               |                  |
-| \"\...\", *// Id  |                               |                  |
-| of the relevant   |                               |                  |
-| contract          |                               |                  |
-| version,*\        |                               |                  |
-| label: { *//      |                               |                  |
-| Custom label to   |                               |                  |
-| be used*\         |                               |                  |
-| nl: \"Maatpremie  |                               |                  |
-| voor makelaar     |                               |                  |
-| broker\",\        |                               |                  |
-| en: \"Custom      |                               |                  |
-| premium for       |                               |                  |
-| broker\",\        |                               |                  |
-| fr: \"\...\"\     |                               |                  |
-| },\               |                               |                  |
-| premiums: \[ *//  |                               |                  |
-| Must be balanced, |                               |                  |
-| and refer to      |                               |                  |
-| roles on current  |                               |                  |
-| version*\         |                               |                  |
-| {\                |                               |                  |
-| amount:10000, *// |                               |                  |
-| 100,00 €*\        |                               |                  |
-| role: \"broker\"  |                               |                  |
-| *// Grant to the  |                               |                  |
-| broker,*\         |                               |                  |
-| primary: true *// |                               |                  |
-| This is the       |                               |                  |
-| primary account*\ |                               |                  |
-| },\               |                               |                  |
-| {\                |                               |                  |
-| amount:-10000,    |                               |                  |
-| *// -100,00 €*\   |                               |                  |
-| role:             |                               |                  |
-| \"platformOwner\" |                               |                  |
-| *// Take from the |                               |                  |
-| platform owner*\  |                               |                  |
-| }\                |                               |                  |
-| \]\               |                               |                  |
-| }\                |                               |                  |
-| \]\               |                               |                  |
-| }                 |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **Error 404 -     |                               |                  |
-| Method not        |                               |                  |
-| supported (OK)**  |                               |                  |
-+-------------------+-------------------------------+------------------+
-| (no body)         |                               |                  |
-+-------------------+-------------------------------+------------------+
+<table style="display: flex; justify-content: center;">
+  <tr>
+    <th colspan="3">Generate custom premiums for the contract timeline</th>
+  </tr>
 
-+-----------------------------------------------------------------------+
-| **Note**                                                              |
-|                                                                       |
-| Please note that to this date, custom premiums are always **fees**    |
-| (outside of net premium, and excluding taxes), and not commissions.   |
-+=======================================================================+
-+-----------------------------------------------------------------------+
+  <tr>
+    <th>METHOD</th>
+    <th>URI</th>
+    <th>RESPONSE</th>
+  </tr>
+  <tr>
+    <td>POST <br/>(application/json)</td>
+    <td>/custom-premiums</td>
+    <td>→ 200 OK
+(application/json)
+</td>
+  </tr>
 
-Retrieve plugin info
+  <tr>
+    <th colspan="3">Request body example - An array of contract versions representing the timeline</th>
+  </tr>
+  <tr>
+  <tr>
+    <td colspan="3"><pre>[{
+  startDate: "2021-01-01T00:00:00.000+0100",
+  brokerId: "...", // Id of the managing broker
+  productId: "...", // Id of the product if applicable
+  riskModel: {...}, // Risk model copy
+  financialBrokerId: "...", // Id of the financial broker,
+  riskLevel: "low|medium|high", // Risk level (optional)
+  accepted: true | false, // Not insurable but accepted by risk carriers,
+  insurable: true | false, // Insurable or not
+  language: “nl” // Current language
+  // Some other fields are available, but not relevant to this routine
+}]
+</pre>
+    </td>
+  </tr>
+
+  <tr>
+    <th>HEADER</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>Accept</td>
+    <td colspan="2">application/json</td>
+  </tr>
+  <tr>
+    <td>Accept-Encoding</td>
+    <td colspan="2">UTF-8</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Response body example - A transformed and validated risk model</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>{
+  customPremiums: [
+    {
+      contractVersionId: "...", // Id of the relevant contract version,
+      label: { // Custom label to be used
+        nl: "Maatpremie voor makelaar broker",
+        en: "Custom premium for broker",
+        fr: "..."
+      },
+      premiums: [ // Must be balanced, and refer to roles on current version
+        {
+          amount:10000, // 100,00 €
+          role: "broker" // Grant to the broker,
+          primary: true // This is the primary account
+        },
+        {
+          amount:-10000, // -100,00 €
+          role: "platformOwner" // Take from the platform owner
+        }
+      ]
+    }
+  ]
+}
+</pre>
+    </td>
+  </tr>
+
+ <tr>
+    <th colspan="3">Error 404 - Method not supported (OK)</th>
+  </tr>
+  <tr>
+    <td>(no body)</td>
+  </tr>
+</table>
+
+
+> **Note**                                                             
+Please note that to this date, custom premiums are always **fees** (outside of net premium, and excluding taxes), and not commissions.   
+
+## Retrieve plugin info
 
 When the SoFIE Core connects to a plugin, it needs to first know some
 basic information about the corresponding side. This information comes
 from the info endpoint. The values for the fields in the response are
 all determined by the plugin.
 
-+------------------+--------------------------------+------------------+
-| **Retrieving     |                                |                  |
-| plugin details** |                                |                  |
-+==================+================================+==================+
-| **METHOD**       | **URI**                        | **RESPONSE**     |
-+------------------+--------------------------------+------------------+
-| **GET**          | /info                          | → **200 OK**     |
-|                  |                                |                  |
-| (a               |                                | (a               |
-| pplication/json) |                                | pplication/json) |
-+------------------+--------------------------------+------------------+
-| **HEADER**       | VALUE                          |                  |
-+------------------+--------------------------------+------------------+
-| **Accept**       | application/json               |                  |
-+------------------+--------------------------------+------------------+
-| **A              | UTF-8                          |                  |
-| ccept-Encoding** |                                |                  |
-+------------------+--------------------------------+------------------+
-| **Response body  |                                |                  |
-| example -        |                                |                  |
-| Details about    |                                |                  |
-| the plugin**     |                                |                  |
-+------------------+--------------------------------+------------------+
-| {\               |                                |                  |
-| customerName:    |                                |                  |
-| \"               |                                |                  |
-| test-customer\", |                                |                  |
-|                  |                                |                  |
-| name:            |                                |                  |
-| \"test-          |                                |                  |
-| product-range\", |                                |                  |
-| *// Name of the  |                                |                  |
-| plugin, usually  |                                |                  |
-| the same*        |                                |                  |
-|                  |                                |                  |
-| *// as the       |                                |                  |
-| product range*   |                                |                  |
-|                  |                                |                  |
-| version: \"1\"   |                                |                  |
-| *// The version  |                                |                  |
-| of the plugin*   |                                |                  |
-|                  |                                |                  |
-| parentName:      |                                |                  |
-| \"o              |                                |                  |
-| ptional-parent\" |                                |                  |
-| *// An optional  |                                |                  |
-| parent plugin.   |                                |                  |
-| See below*       |                                |                  |
-|                  |                                |                  |
-| }                |                                |                  |
-+------------------+--------------------------------+------------------+
+<table style="display: flex; justify-content: center;">
+  <tr>
+    <th colspan="3">Retrieving plugin details</th>
+  </tr>
+
+  <tr>
+    <th>METHOD</th>
+    <th>URI</th>
+    <th>RESPONSE</th>
+  </tr>
+  <tr>
+    <td>GET <br/>(application/json)</td>
+    <td>/info</td>
+    <td>→ 200 OK
+(application/json)
+</td>
+  </tr>
+
+  <tr>
+    <th>HEADER</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>Accept</td>
+    <td colspan="2">application/json</td>
+  </tr>
+  <tr>
+    <td>Accept-Encoding</td>
+    <td colspan="2">UTF-8</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Response body example - Details about the plugin</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>{
+  customerName: "test-customer",
+  name: "test-product-range",   // Name of the plugin, usually the same 
+                                // as the product range
+  version: "1"                  // The version of the plugin
+  parentName: "optional-parent" // An optional parent plugin. See below
+}</pre>
+    </td>
+  </tr>
+</table>
 
 The parentName is a link to another plugin for the same customer. When
 specified, SoFIE Core will link the product range of the child plugin to
@@ -1439,101 +1309,74 @@ timeline).
 The core will automatically query the plugin for the list of supported
 tags.
 
-+-------------------+-------------------------------+------------------+
-| **Generate custom |                               |                  |
-| premiums for the  |                               |                  |
-| contract          |                               |                  |
-| timeline**        |                               |                  |
-+===================+===============================+==================+
-| **METHOD**        | **URI**                       | **RESPONSE**     |
-+-------------------+-------------------------------+------------------+
-| **GET**           | /tags                         | → **200 OK**     |
-|                   |                               |                  |
-| (                 |                               | (a               |
-| application/json) |                               | pplication/json) |
-+-------------------+-------------------------------+------------------+
-| **HEADER**        | VALUE                         |                  |
-+-------------------+-------------------------------+------------------+
-| **Accept**        | application/json              |                  |
-+-------------------+-------------------------------+------------------+
-| **                | UTF-8                         |                  |
-| Accept-Encoding** |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **Response body   |                               |                  |
-| example**         |                               |                  |
-+-------------------+-------------------------------+------------------+
-| \[                |                               |                  |
-|                   |                               |                  |
-| {                 |                               |                  |
-|                   |                               |                  |
-| name: \"demo\",   |                               |                  |
-| *// A unique name |                               |                  |
-| for the tag. The  |                               |                  |
-| same value must   |                               |                  |
-| be*               |                               |                  |
-|                   |                               |                  |
-| *// used when a   |                               |                  |
-| tag is applicable |                               |                  |
-| and returned in   |                               |                  |
-| the*              |                               |                  |
-|                   |                               |                  |
-| *// status        |                               |                  |
-| endpoint (See     |                               |                  |
-| below)*           |                               |                  |
-|                   |                               |                  |
-| label: { *// The  |                               |                  |
-| presentation      |                               |                  |
-| value displayed   |                               |                  |
-| in SoFIE          |                               |                  |
-| Dashboard*        |                               |                  |
-|                   |                               |                  |
-| en: \"Demo\",     |                               |                  |
-|                   |                               |                  |
-| nl: \"Demo\"      |                               |                  |
-|                   |                               |                  |
-| \[\...\]:         |                               |                  |
-| \"\...\"          |                               |                  |
-|                   |                               |                  |
-| }                 |                               |                  |
-|                   |                               |                  |
-| },                |                               |                  |
-|                   |                               |                  |
-| {                 |                               |                  |
-|                   |                               |                  |
-| name:             |                               |                  |
-| \"business\",     |                               |                  |
-|                   |                               |                  |
-| label: {          |                               |                  |
-|                   |                               |                  |
-| en: \"Business\", |                               |                  |
-|                   |                               |                  |
-| nl: \"Bedrijf\",  |                               |                  |
-|                   |                               |                  |
-| \[\...\]:         |                               |                  |
-| \"\...\"          |                               |                  |
-|                   |                               |                  |
-| }                 |                               |                  |
-|                   |                               |                  |
-| }                 |                               |                  |
-|                   |                               |                  |
-| \]                |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **Error 422 -     |                               |                  |
-| Risk model        |                               |                  |
-| invalid**         |                               |                  |
-+-------------------+-------------------------------+------------------+
-| Same as for       |                               |                  |
-| validation        |                               |                  |
-+-------------------+-------------------------------+------------------+
+<table style="display: flex; justify-content: center;">
+  <tr>
+    <th colspan="3">Generate custom premiums for the contract timeline</th>
+  </tr>
 
-+-----------------------------------------------------------------------+
-| **Note**                                                              |
-|                                                                       |
-| Please note that, to date, once a tag was supported in a version of   |
-| the plugin, all future versions **must** continue supporting that     |
-| tag.                                                                  |
-+=======================================================================+
-+-----------------------------------------------------------------------+
+  <tr>
+    <th>METHOD</th>
+    <th>URI</th>
+    <th>RESPONSE</th>
+  </tr>
+  <tr>
+    <td>GET <br/>(application/json)</td>
+    <td>/tags</td>
+    <td>→ 200 OK
+(application/json)
+</td>
+  </tr>
+
+  <tr>
+    <th>HEADER</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>Accept</td>
+    <td colspan="2">application/json</td>
+  </tr>
+  <tr>
+    <td>Accept-Encoding</td>
+    <td colspan="2">UTF-8</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Response body example</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>[
+    {
+        name: "demo", // A unique name for the tag. The same value must be
+                      // used when a tag is applicable and returned in the 
+                      // status endpoint (See below)
+        label: {      // The presentation value displayed in SoFIE Dashboard
+            en: "Demo",
+            nl: "Demo"
+            [...]: "..."
+        }
+    },
+    {
+        name: "business",
+        label: {
+            en: "Business",
+            nl: "Bedrijf",
+            [...]: "..."
+        }
+    }
+]</pre>
+    </td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Error 422 - Risk model invalid</th>
+  </tr><tr>
+    <td colspan="3">Same as for validation</td>
+  </tr>
+
+</table>
+
+> **Note**                                                              
+ Please note that, to date, once a tag was supported in a version of the plugin, all future versions **must** continue supporting that tag.                                                                  
 
 ##  
 
@@ -1543,96 +1386,86 @@ This method provides various statuses of a valid risk model. The
 endpoint will return the risk level (optional), the insurability status
 (true\|false) and any applicable tags.
 
-+-------------------+-------------------------------+------------------+
-| **Generate custom |                               |                  |
-| premiums for the  |                               |                  |
-| contract          |                               |                  |
-| timeline**        |                               |                  |
-+===================+===============================+==================+
-| **METHOD**        | **URI**                       | **RESPONSE**     |
-+-------------------+-------------------------------+------------------+
-| **POST**          | /status                       | → **200 OK**     |
-|                   |                               |                  |
-| (                 |                               | (a               |
-| application/json) |                               | pplication/json) |
-+-------------------+-------------------------------+------------------+
-| **Request body    |                               |                  |
-| example**         |                               |                  |
-+-------------------+-------------------------------+------------------+
-| {\                |                               |                  |
-| demoField :       |                               |                  |
-| \"Hello,          |                               |                  |
-| world\",\         |                               |                  |
-| version: 2\       |                               |                  |
-| }                 |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **HEADER**        | VALUE                         |                  |
-+-------------------+-------------------------------+------------------+
-| **Accept**        | application/json              |                  |
-+-------------------+-------------------------------+------------------+
-| **                | UTF-8                         |                  |
-| Accept-Encoding** |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **QUERY PARAM**   | VALUE                         |                  |
-+-------------------+-------------------------------+------------------+
-| **startDate**     | ISO 8601 datetime - The start |                  |
-|                   | date of the risk model. The   |                  |
-|                   | plugin may use it in case the |                  |
-|                   | transformations depend on the |                  |
-|                   | "start date" of the risk      |                  |
-|                   | model.                        |                  |
-+-------------------+-------------------------------+------------------+
-| **brokerId**      | A reference to a SoFIE        |                  |
-|                   | broker. Can be used to        |                  |
-|                   | retrieve the broker           |                  |
-|                   | configuration through an API  |                  |
-|                   | call in case the plugin       |                  |
-|                   | requires it.                  |                  |
-+-------------------+-------------------------------+------------------+
-| **productId**     | A reference to a SoFIE        |                  |
-|                   | product. Can be used to       |                  |
-|                   | retrieve the product          |                  |
-|                   | configuration through an API  |                  |
-|                   | call in case the plugin       |                  |
-|                   | requires it.                  |                  |
-+-------------------+-------------------------------+------------------+
-| **Response body   |                               |                  |
-| example**         |                               |                  |
-+-------------------+-------------------------------+------------------+
-| {\                |                               |                  |
-| riskLevel:        |                               |                  |
-| \"high\", *//     |                               |                  |
-| Optional risk     |                               |                  |
-| level low \|      |                               |                  |
-| medium \| high*\  |                               |                  |
-| insurable:        |                               |                  |
-| \"true\", *//     |                               |                  |
-| true \| false -   |                               |                  |
-| Whether on offer  |                               |                  |
-| can be*           |                               |                  |
-|                   |                               |                  |
-| *// generated for |                               |                  |
-| this risk*\       |                               |                  |
-| tags: \[\"demo\", |                               |                  |
-| \"business\",     |                               |                  |
-| \"medical\"\] *// |                               |                  |
-| Tag names         |                               |                  |
-| applicable to     |                               |                  |
-| this risk*        |                               |                  |
-|                   |                               |                  |
-| *// model         |                               |                  |
-| instance*         |                               |                  |
-|                   |                               |                  |
-| }                 |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **Error 422 -     |                               |                  |
-| Risk model        |                               |                  |
-| invalid**         |                               |                  |
-+-------------------+-------------------------------+------------------+
-| The same as for   |                               |                  |
-| the validation    |                               |                  |
-| endpoint          |                               |                  |
-+-------------------+-------------------------------+------------------+
+<table style="display: flex; justify-content: center;">
+  <tr>
+    <th colspan="3">Generate custom premiums for the contract timeline</th>
+  </tr>
+
+  <tr>
+    <th>METHOD</th>
+    <th>URI</th>
+    <th>RESPONSE</th>
+  </tr>
+  <tr>
+    <td>POST <br/>(application/json)</td>
+    <td>/status</td>
+    <td>→ 200 OK
+(application/json)
+</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Request body example</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>{
+  demoField : "Hello, world",
+  version: 2
+}
+</pre></td>
+  </tr>
+
+  <tr>
+    <th>HEADER</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>Accept</td>
+    <td colspan="2">application/json</td>
+  </tr>
+  <tr>
+    <td>Accept-Encoding</td>
+    <td colspan="2">UTF-8</td>
+  </tr>
+
+  <tr>
+    <th>QUERY PARAM</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+
+  <tr>
+    <td>startDate</td>
+    <td colspan="2">ISO 8601 datetime - The start date of the risk model. The plugin may use it in case the transformations depend on the “start date” of the risk model.</td>
+  </tr>
+  <tr>
+    <td>brokerId</td>
+    <td colspan="2">A reference to a SoFIE broker. Can be used to retrieve the broker configuration through an API call in case the plugin requires it.</td>
+  </tr>
+  <tr>
+    <td>productId</td>
+    <td colspan="2">A reference to a SoFIE product. Can be used to retrieve the product configuration through an API call in case the plugin requires it.</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Response body example</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>{
+  riskLevel: "high", // Optional risk level low | medium | high
+  insurable: "true", // true | false - Whether on offer can be 
+                     // generated for this risk
+  tags: ["demo", "business", "medical"] // Tag names applicable to this risk
+                                        // model instance
+}</pre></td>
+</tr>
+
+ <tr>
+    <th colspan="3">Error 422 - Risk model invalid</th>
+  </tr>
+ <tr>
+    <td colspan="3">The same as for the validation endpoint</td>
+  </tr>
+</table>
 
 ## Rate calculation
 
@@ -1655,59 +1488,59 @@ Each rate method can have its own label for presentation purposes, and
 can indicate whether or not the package requires a pricing table (see
 the pricing table parameter in the rate calculation endpoint below).
 
-+-------------------+-------------------------------+------------------+
-| **Generate custom |                               |                  |
-| premiums for the  |                               |                  |
-| contract          |                               |                  |
-| timeline**        |                               |                  |
-+===================+===============================+==================+
-| **METHOD**        | **URI**                       | **RESPONSE**     |
-+-------------------+-------------------------------+------------------+
-| **GET**           | /rate                         | → **200 OK**     |
-|                   |                               |                  |
-| (                 |                               | (a               |
-| application/json) |                               | pplication/json) |
-+-------------------+-------------------------------+------------------+
-| **HEADER**        | VALUE                         |                  |
-+-------------------+-------------------------------+------------------+
-| **Accept**        | application/json              |                  |
-+-------------------+-------------------------------+------------------+
-| **                | UTF-8                         |                  |
-| Accept-Encoding** |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **Response body   |                               |                  |
-| example**         |                               |                  |
-+-------------------+-------------------------------+------------------+
-| \[\               |                               |                  |
-| {\                |                               |                  |
-| name: \"demo\",   |                               |                  |
-| *// Name of the   |                               |                  |
-| rate method to    |                               |                  |
-| use in endpoint   |                               |                  |
-| path*\            |                               |                  |
-| label: { *//      |                               |                  |
-| Label for use in  |                               |                  |
-| dashboard*\       |                               |                  |
-| en: \"Demo        |                               |                  |
-| algorithm\",\     |                               |                  |
-| nl: \"Demo        |                               |                  |
-| algoritme\",\     |                               |                  |
-| \[\...\]:         |                               |                  |
-| \"\...\"\         |                               |                  |
-| },\               |                               |                  |
-| requ              |                               |                  |
-| iresPricingTable: |                               |                  |
-| false *// This    |                               |                  |
-| rate method does  |                               |                  |
-| not require a     |                               |                  |
-| pricing table*\   |                               |                  |
-| }\                |                               |                  |
-| \]                |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **Error 404 -     |                               |                  |
-| Plugin not        |                               |                  |
-| found**           |                               |                  |
-+-------------------+-------------------------------+------------------+
+<table style="display: flex; justify-content: center;">
+  <tr>
+    <th colspan="3">Generate custom premiums for the contract timeline</th>
+  </tr>
+
+  <tr>
+    <th>METHOD</th>
+    <th>URI</th>
+    <th>RESPONSE</th>
+  </tr>
+  <tr>
+    <td>GET <br/>(application/json)</td>
+    <td>/rate</td>
+    <td>→ 200 OK
+(application/json)
+</td>
+  </tr>
+
+  <tr>
+    <th>HEADER</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>Accept</td>
+    <td colspan="2">application/json</td>
+  </tr>
+  <tr>
+    <td>Accept-Encoding</td>
+    <td colspan="2">UTF-8</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Response body example</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>[
+  {
+    name: "demo", // Name of the rate method to use in endpoint path
+    label: { // Label for use in dashboard
+      en: "Demo algorithm",
+      nl: "Demo algoritme",
+      [...]: "..."
+    },
+    requiresPricingTable: false // This rate method does not require a pricing table
+  }
+]
+</pre></td>
+</tr>
+
+ <tr>
+    <th colspan="3">Error 404 - Plugin not found</th>
+  </tr>
+</table>
 
 ## Invoking rate calculation for a rate method
 
@@ -1736,246 +1569,155 @@ offer/contract.
 -   The Core may adjust certain components when scaling rates up or down
     to more or less days. In that case, rounding may occur.
 
-+-------------------+-------------------------------+------------------+
-| **Generate custom |                               |                  |
-| premiums for the  |                               |                  |
-| contract          |                               |                  |
-| timeline**        |                               |                  |
-+===================+===============================+==================+
-| **METHOD**        | **URI**                       | **RESPONSE**     |
-+-------------------+-------------------------------+------------------+
-| **POST**          | /rate/:rateMethodName         | → **200 OK**     |
-|                   |                               |                  |
-| (                 |                               | (a               |
-| application/json) |                               | pplication/json) |
-+-------------------+-------------------------------+------------------+
-| **Request body    |                               |                  |
-| example**         |                               |                  |
-+-------------------+-------------------------------+------------------+
-| {\                |                               |                  |
-| riskModel:        |                               |                  |
-| {\...}, *// Copy  |                               |                  |
-| of the risk       |                               |                  |
-| model*\           |                               |                  |
-| ratingOption: {\  |                               |                  |
-| id: \"\...\", //  |                               |                  |
-| Package ID for    |                               |                  |
-| debugging/logging |                               |                  |
-| purposes\         |                               |                  |
-| underwriterComm   |                               |                  |
-| issionPercentage: |                               |                  |
-| 2500, // 25%      |                               |                  |
-| INCLUDES THE      |                               |                  |
-| BROKER COMM. %\   |                               |                  |
-| underwriterRed    |                               |                  |
-| uctionPercentage: |                               |                  |
-| 0, // 0 % //      |                               |                  |
-| AMOUNT OF RED. ON |                               |                  |
-| THE ABOVE %\      |                               |                  |
-| brokerComm        |                               |                  |
-| issionPercentage: |                               |                  |
-| 1500, // 15% -    |                               |                  |
-| ALWAYS \<=        |                               |                  |
-| UNDERWRITER COMM. |                               |                  |
-| %\                |                               |                  |
-| brokerRed         |                               |                  |
-| uctionPercentage: |                               |                  |
-| 0, // 0% //       |                               |                  |
-| AMOUNT OF         |                               |                  |
-| REDUCTION ON THE  |                               |                  |
-| ABOVE %\          |                               |                  |
-| taxPercentage:    |                               |                  |
-| 2500 // 25%       |                               |                  |
-| PERCENTAGE OF TAX |                               |                  |
-| (can be ignored)\ |                               |                  |
-| }, *// Rating     |                               |                  |
-| options*\         |                               |                  |
-| pricingTable: \[  |                               |                  |
-| *// Table with    |                               |                  |
-| rate              |                               |                  |
-| information*\     |                               |                  |
-| { *// One element |                               |                  |
-| is up to a        |                               |                  |
-| specific insured  |                               |                  |
-| capital*\         |                               |                  |
-| maximumBase:      |                               |                  |
-| 100000000, *//    |                               |                  |
-| Valid for base    |                               |                  |
-| amount up to 1 M  |                               |                  |
-| Euro,*\           |                               |                  |
-| click: false, *// |                               |                  |
-| Do not            |                               |                  |
-| click(increase by |                               |                  |
-| fixed steps),     |                               |                  |
-| instead scale*    |                               |                  |
-|                   |                               |                  |
-| *// the           |                               |                  |
-| premium,*\        |                               |                  |
-| factor: 500, *//  |                               |                  |
-| 5 € of risk       |                               |                  |
-| premium*\         |                               |                  |
-| scale: 100000 *// |                               |                  |
-| Per 1000 € of     |                               |                  |
-| insured capital*\ |                               |                  |
-| }\                |                               |                  |
-| \] *// Pricing    |                               |                  |
-| table             |                               |                  |
-| (optional)*\      |                               |                  |
-| }                 |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **HEADER**        | VALUE                         |                  |
-+-------------------+-------------------------------+------------------+
-| **Accept**        | application/json              |                  |
-+-------------------+-------------------------------+------------------+
-| **                | UTF-8                         |                  |
-| Accept-Encoding** |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **PATH PARAM**    | VALUE                         |                  |
-+-------------------+-------------------------------+------------------+
-| *                 | The name of the algorithm to  |                  |
-| *rateMethodName** | be used                       |                  |
-+-------------------+-------------------------------+------------------+
-| **QUERY PARAM**   | VALUE                         |                  |
-+-------------------+-------------------------------+------------------+
-| **startDate**     | Start date of contract        |                  |
-|                   | version or period to use for  |                  |
-|                   | calculation                   |                  |
-+-------------------+-------------------------------+------------------+
-| **new             | True means creation of a new  |                  |
-| ContractVersion** | contract version (if relevant |                  |
-|                   | for the calculations - for    |                  |
-|                   | example, in the case when a   |                  |
-|                   | temporal data is required and |                  |
-|                   | the flag determines for which |                  |
-|                   | date the temporal data should |                  |
-|                   | be used)                      |                  |
-+-------------------+-------------------------------+------------------+
-| **productId**     | Id of the product             |                  |
-+-------------------+-------------------------------+------------------+
-| **brokerId**      | Id of the broker              |                  |
-+-------------------+-------------------------------+------------------+
-| **co              | Start date of the contract    |                  |
-| ntractStartDate** | (sometimes relevant)          |                  |
-+-------------------+-------------------------------+------------------+
-| *                 | If true, the validation of    |                  |
-| *skipValidation** | the risk model should not be  |                  |
-|                   | performed. It's safe to skip  |                  |
-|                   | validation for performance    |                  |
-|                   | reasons. The risk model       |                  |
-|                   | version was already verified  |                  |
-|                   | in a previous call.           |                  |
-+-------------------+-------------------------------+------------------+
-| **endDate**       | Deprecated - Do not use       |                  |
-+-------------------+-------------------------------+------------------+
-| **Response body   |                               |                  |
-| example**         |                               |                  |
-+-------------------+-------------------------------+------------------+
-| {\                |                               |                  |
-| base: 100000000,  |                               |                  |
-| // Base of        |                               |                  |
-| calculations      |                               |                  |
-| (informative) 1M  |                               |                  |
-| €                 |                               |                  |
-|                   |                               |                  |
-| riskPremium:      |                               |                  |
-| 100000, // Risk   |                               |                  |
-| premium of 1K €   |                               |                  |
-|                   |                               |                  |
-| maxCommission:    |                               |                  |
-| 10000, // 100,00  |                               |                  |
-| € Max underwriter |                               |                  |
-| commission        |                               |                  |
-| without reduction |                               |                  |
-|                   |                               |                  |
-| commission:       |                               |                  |
-| 10000, // 100,00  |                               |                  |
-| € Underwriter     |                               |                  |
-| commission after  |                               |                  |
-| reduction         |                               |                  |
-|                   |                               |                  |
-| max               |                               |                  |
-| BrokerCommission: |                               |                  |
-| 15000, // 150,00  |                               |                  |
-| € Max broker      |                               |                  |
-| commission        |                               |                  |
-| without reduct.   |                               |                  |
-|                   |                               |                  |
-| brokerCommission: |                               |                  |
-| 15000, // 150,00  |                               |                  |
-| € Broker          |                               |                  |
-| commission        |                               |                  |
-|                   |                               |                  |
-| totalCommission:  |                               |                  |
-| 25000, // 250,00  |                               |                  |
-| € Total           |                               |                  |
-| commission        |                               |                  |
-|                   |                               |                  |
-| netPremium:       |                               |                  |
-| 125000, //        |                               |                  |
-| 1.250,00 € Net    |                               |                  |
-| premium           |                               |                  |
-|                   |                               |                  |
-| tax: 12500, //    |                               |                  |
-| 10% of tax is     |                               |                  |
-| 125,00 €          |                               |                  |
-|                   |                               |                  |
-| fee: 0, // No fee |                               |                  |
-| underwriter       |                               |                  |
-|                   |                               |                  |
-| brokerFee: 0, //  |                               |                  |
-| No fee broker     |                               |                  |
-|                   |                               |                  |
-| totalPremium:     |                               |                  |
-| 137500, 1.375,00  |                               |                  |
-| € Net premium +   |                               |                  |
-| tax (and no fees) |                               |                  |
-|                   |                               |                  |
-| components: \[\], |                               |                  |
-| // Optional rate  |                               |                  |
-| components for    |                               |                  |
-| riskPremium, fee  |                               |                  |
-| and brokerFee     |                               |                  |
-|                   |                               |                  |
-| label: { //       |                               |                  |
-| Optional          |                               |                  |
-| informational     |                               |                  |
-| label with        |                               |                  |
-| placeholder       |                               |                  |
-|                   |                               |                  |
-| en: "We used the  |                               |                  |
-| index with value  |                               |                  |
-| \${indexValue}"   |                               |                  |
-|                   |                               |                  |
-| },                |                               |                  |
-|                   |                               |                  |
-| details: {        |                               |                  |
-|                   |                               |                  |
-| indexValue: 123   |                               |                  |
-|                   |                               |                  |
-| }                 |                               |                  |
-|                   |                               |                  |
-| }                 |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **Error 422 -     |                               |                  |
-| Risk model        |                               |                  |
-| invalid**         |                               |                  |
-+-------------------+-------------------------------+------------------+
-| Same as for       |                               |                  |
-| validation        |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **Error 412 -     |                               |                  |
-| Precondition      |                               |                  |
-| failed**          |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **Error 404 -     |                               |                  |
-| Rate method not   |                               |                  |
-| found**           |                               |                  |
-+-------------------+-------------------------------+------------------+
-| **Error 500 -     |                               |                  |
-| Server error**    |                               |                  |
-+-------------------+-------------------------------+------------------+
 
-### 
+<table style="display: flex; justify-content: center;">
+  <tr>
+    <th colspan="3">Generate custom premiums for the contract timeline</th>
+  </tr>
+
+  <tr>
+    <th>METHOD</th>
+    <th>URI</th>
+    <th>RESPONSE</th>
+  </tr>
+  <tr>
+    <td>POST <br/>/(application/json)</td>
+    <td>/rate/:rateMethodName</td>
+    <td>→ 200 OK <br/>(application/json)
+</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Request body example</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>{
+  riskModel: {...}, // Copy of the risk model
+  ratingOption: {
+    id: "...", // Package ID for debugging/logging purposes
+    underwriterCommissionPercentage: 2500, // 25% INCLUDES THE BROKER COMM. %
+    underwriterReductionPercentage: 0, // 0 % // AMOUNT OF RED. ON THE ABOVE %
+    brokerCommissionPercentage: 1500, // 15% - ALWAYS <= UNDERWRITER COMM. %
+    brokerReductionPercentage: 0, // 0% // AMOUNT OF REDUCTION ON THE ABOVE %
+    taxPercentage: 2500 // 25% PERCENTAGE OF TAX (can be ignored)
+  }, // Rating options
+  pricingTable: [ // Table with rate information
+    { // One element is up to a specific insured capital
+      maximumBase: 100000000, // Valid for base amount up to 1 M Euro,
+      click: false, // Do not click(increase by fixed steps), instead scale 
+                    // the premium,
+      factor: 500, // 5 € of risk premium
+      scale: 100000 // Per 1000 € of insured capital
+    }
+  ] // Pricing table (optional)
+}
+</pre></td>
+  </tr>
+
+  <tr>
+    <th>HEADER</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>Accept</td>
+    <td colspan="2">application/json</td>
+  </tr>
+  <tr>
+    <td>Accept-Encoding</td>
+    <td colspan="2">UTF-8</td>
+  </tr>
+
+  <tr>
+    <th>PATH PARAM</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>rateMethodName</td>
+    <td colspan="2">The name of the algorithm to be used/td>
+  </tr>
+
+  <tr>
+    <th>QUERY PARAM</th>
+    <th colspan="2">VALUE</th>
+  </tr>
+  <tr>
+    <td>startDate</td>
+    <td colspan="2">Start date of contract version or period to use for calculation</td>
+  </tr>
+  <tr>
+    <td>newContractVersion</td>
+    <td colspan="2">True means creation of a new contract version (if relevant for the calculations - for example, in the case when a temporal data is required and the flag determines for which date the temporal data should be used)</td>
+  </tr>
+  <tr>
+    <td>productId</td>
+    <td colspan="2">Id of the product</td>
+  </tr>
+  <tr>
+    <td>brokerId</td>
+    <td colspan="2">Id of the broker</td>
+  </tr>  
+  <tr>
+    <td>contractStartDate</td>
+    <td colspan="2">Start date of the contract (sometimes relevant)</td>
+  </tr>
+  <tr>
+    <td>skipValidation</td>
+    <td colspan="2">If true, the validation of the risk model should not be performed. It’s safe to skip validation for performance reasons. The risk model version was already verified in a previous call.</td>
+  </tr>
+  <tr>
+    <td>endDate</td>
+    <td colspan="2">Deprecated - Do not use</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Response body example</th>
+  </tr>
+  <tr>
+    <td colspan="3"><pre>{
+  base: 100000000, // Base of calculations (informative) 1M €
+  riskPremium: 100000, // Risk premium of 1K €
+  maxCommission: 10000, // 100,00 € Max underwriter commission without reduction
+  commission: 10000, // 100,00 € Underwriter commission after reduction
+  maxBrokerCommission: 15000, // 150,00 € Max broker commission without reduct.
+  brokerCommission: 15000, // 150,00 € Broker commission
+  totalCommission: 25000, // 250,00 € Total commission
+  netPremium: 125000, // 1.250,00 € Net premium
+  tax: 12500, // 10% of tax is 125,00 €
+  fee: 0, // No fee underwriter
+  brokerFee: 0, // No fee broker
+  totalPremium: 137500, 1.375,00 € Net premium + tax (and no fees)
+  components: [], // Optional rate components for riskPremium, fee and brokerFee
+  label: { // Optional informational label with placeholder
+    en: “We used the index with value ${indexValue}”
+  },
+  details: {
+    indexValue: 123
+  }
+}</pre>
+    </td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Error 422 - Risk model invalid</th>
+  </tr>
+  <tr>
+    <td colspan="3">Same as for validation</td>
+  </tr>
+
+  <tr>
+    <th colspan="3">Error 412 - Precondition failed</th>
+  </tr>
+
+  <tr>
+    <th colspan="3">Error 404 - Rate method not found</th>
+  </tr> 
+
+  <tr>
+    <th colspan="3">Error 500 - Server error</th>
+  </tr>
+</table>
+
+###
 
 ### Rate components
 
@@ -1993,24 +1735,17 @@ min risk premium is set, but not reached due to low base amount).
 
 **Example of a rate component for a correction applied in the group
 "waterDamage".**
-
-+-----------------------------------------------------------------------+
-| {\                                                                    |
-| type: \"riskPremium\", *// \"fee\" \| \"brokerFee\" or                |
-| \"riskPremium\". The premium type to provide detail for.*\            |
-| amount: 1000, *// 10 €*\                                              |
-| subType: \"correction\", *// Custom name provided by plugin,          |
-| indicates the type of the component*\                                 |
-| group: \"waterDamage\", *// Custom group name provided by plugin.     |
-| Used for total calculations*\                                         |
-| label: {\                                                             |
-| en: \"Correction due to min premiums for water damage\",              |
-|                                                                       |
-| \[\...\]: "\..."\                                                     |
-| } *// i18n labels for the component. No use of placeholders.*\        |
-| }                                                                     |
-+=======================================================================+
-+-----------------------------------------------------------------------+
+<pre>{
+  type: "riskPremium", // "fee" | "brokerFee" or "riskPremium". The premium type to provide detail for.
+  amount: 1000, // 10 €
+  subType: "correction", // Custom name provided by plugin, indicates the type of the component
+  group: "waterDamage", // Custom group name provided by plugin. Used for total calculations
+  label: {
+    en: "Correction due to min premiums for water damage",
+    [...]: “...”
+  } // i18n labels for the component. No use of placeholders.  
+}
+</pre>
 
 If components are used, then the core system will provide the templates
 with estimated pro-rated values for the commissions etc. based on the
@@ -2085,4 +1820,5 @@ Use temporal reference data for:
 
 -   \...
 
-[^1]: See the OpenAPI specification
+### ^1
+See the OpenAPI specification
