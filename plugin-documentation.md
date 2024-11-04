@@ -1,12 +1,3 @@
----
-subtitle: "[]{#_heading=h.gjdgxs .anchor}Guide & API Documentation"
-title: |
-  ![Logo, company name Description automatically
-  generated](media/image1.png){width="2.1148786089238847in"
-  height="1.885680227471566in"}
-
-  SoFIE - Plugin Development V1
----
 # SoFIE - Plugin Development V1Guide & API Documentation
 ## Guide & API Documentation
 
