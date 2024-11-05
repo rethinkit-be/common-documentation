@@ -1,4 +1,6 @@
-# SoFIE - Plugin Development V1Guide & API Documentation
+![RethinkIt logo](resources/rethinkit-logo.png)
+
+# SoFIE - Plugin Development V1
 ## Guide & API Documentation
 
 | Version | Author                             | Comment |
@@ -749,10 +751,9 @@ wherever appropriate.
     <th>RESPONSE</th>
   </tr>
   <tr>
-    <td>POST <br/>(-)</td>
+    <td>POST <br/>(application/json)</td>
     <td>/</td>
-    <td>→ 200 OK
-(application/json)
+    <td>→ 200 OK <br/>(application/json)
 </td>
   </tr>
 
@@ -1147,9 +1148,7 @@ accounts and create the actual premiums.
   <tr>
     <td>POST <br/>(application/json)</td>
     <td>/custom-premiums</td>
-    <td>→ 200 OK
-(application/json)
-</td>
+    <td>→ 200 OK <br/> (application/json)</td>
   </tr>
 
   <tr>
@@ -1168,9 +1167,7 @@ accounts and create the actual premiums.
   insurable: true | false, // Insurable or not
   language: “nl” // Current language
   // Some other fields are available, but not relevant to this routine
-}]
-</pre>
-    </td>
+}]</pre></td>
   </tr>
 
   <tr>
@@ -1212,9 +1209,7 @@ accounts and create the actual premiums.
       ]
     }
   ]
-}
-</pre>
-    </td>
+}</pre></td>
   </tr>
 
  <tr>
