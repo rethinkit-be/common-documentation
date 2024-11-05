@@ -1,4 +1,4 @@
-![RethinkIt logo](../resources/rethinkit-logo.png)
+![RethinkIt logo](../resources/images/rethinkit-logo.png)
 
 # SoFIE - Plugin Development V1
 ## Guide & API Documentation
@@ -359,7 +359,7 @@ and refresh it on a regular basis. The plugin must supply a valid schema
 via the following endpoint.
 
 <div align="center">
-    <img src="../resources/plugins-img-1.png">
+    <img src="../resources/images/plugins-img-1.png">
 </div>
 
 ## Retrieving a risk model schema
