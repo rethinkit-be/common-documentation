@@ -249,7 +249,7 @@ need to occur:
 A SoFIE plugin is a **customer specific** application module that
 contains the customer specific application's logic for one or more
 product ranges. The module integrates with the Core system via
-OpenAPI<sup>[^1](#1)</sup> (REST) web services, and provides the following features:
+OpenAPI <sup>[^1]</sup> (REST) web services, and provides the following features:
 
 1.  Definition of the risk model **schema** for each type of product
     range
@@ -1806,5 +1806,4 @@ Use temporal reference data for:
 
 -   \...
 
-### ^1
-See the OpenAPI specification
+[^1]: https://docs.cloud.rethinkit.eu

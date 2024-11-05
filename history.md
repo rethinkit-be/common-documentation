@@ -4,7 +4,7 @@
 
 - SCAD-26 Create documentation repository [Irina][]
 
-# Contributors
+<!-- Contributors -->
 
 [Nikolay]: mailto:nikolayivanov@rethinkit.be
 
