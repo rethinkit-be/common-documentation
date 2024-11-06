@@ -1,0 +1,1360 @@
+{
+	"info": {
+		"_postman_id": "3fd2e3c3-3d9c-4924-9c2e-a93bfa571c64",
+		"name": "Plugin Tests",
+		"description": "##About\n\nThis is a basic test suite for initial smoke-testing of SoFIE plugins.\n\n**All the tests must always be run together and in the provide equence** to ensure the necessary variables are set at the right time.\n\nA **postman environment** must be created and activated beforehand, with the following properties:\n\n``` yaml\n# The installation location of the plugin\nbaseUrl: \"https://ecclesia-poc-tst.verzekerje.be/api/v1\"\n# The default fields for a risk model to validate\nriskDefaults: # These are the defaults for the Ecclesia POC  \n  optionsBuilding: true\n  optionsContents: true\n  optionsCorporateLiability: true\n  coverBuildingFire: true\n  coverContentsFire: true\n  buildingName: Building\n  buildingStreetAndNumber: 123 Main St\n  buildingPostalCode: '1234'\n  buildingCity: Anytown\n  buildingLand: Deutschland\n  zursBuildYear: 2022\n  zursBuildingAge: 2\n  zursZone: someZone\n  zursYear: 2018\n  zursStarkRegenZone: someRegenZone\n  zursStarkRegenYear: 2018\n  insuredValueVolume: 100000\n  insuredValueValueBuilding: 1000000\n  insuredValueValueContents: 100000\n  coverLiabilityTypeOfBuilding: open_door_houses\n  coverLiabilityNumberOf: 1\n  coverLiabilityUnit: test\n  coverLiabilityLevel: 6000000\n  buildingBundesLand: Test\n  buildingLandKreis: Test\n# Apply strict validation rules\nstrictValidation: false\n# The broker to test with\nbrokerId: 62206c70c9a49b61f50437fd\n# The product id to test with\nproductId: 624351ec252669a9ad28704c\n# The JWT token to supply in the Authorization header (if applicable)\n# jwt:\n# Perform checks on contract version transformations\ncheckContractVersionTransformations: false\n\n ```\n\nOnce the environment has been created and selected as the active environment,\n\nselect the `Plugin Tests` folder in the Collections view. Then, right click it and choose `Run collection`. A window will open showing the current test state and the results for each test in the collection. Each test should be **green**. In order to re-run, ensure to always re-run the entire collection, not an individual test.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30829668",
+		"_collection_link": "https://rethinkit.postman.co/workspace/ReThink-IT-Team~47044c2c-a821-425d-8e93-d25f8a4c5430/collection/31523-3fd2e3c3-3d9c-4924-9c2e-a93bfa571c64?action=share&source=collection_link&creator=30829668"
+	},
+	"item": [
+		{
+			"name": "Get Risk Schema",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Store for subsequent requests",
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"riskSchema\", JSON.stringify(jsonData));",
+							"/**",
+							" * The schema for a risk schema, used for evaluation of the schema validity.",
+							" * DO NOT MODIFY",
+							" */",
+							"const schema = {",
+							"    type:\"object\",",
+							"    minProperties: 1,",
+							"    additionalProperties: {",
+							"        type: \"object\",",
+							"        properties: {",
+							"            type: { enum: [\"string\", \"boolean\", \"number\", \"numerical\", \"Date\", \"Contact\", \"Address\"] },",
+							"            required: { type: \"boolean\" },",
+							"            readOnly: { type: \"boolean\" },",
+							"            hidden: { type: \"boolean\" },",
+							"            default: {},",
+							"            identifiesRisk: { type: \"boolean\" },",
+							"            label: {",
+							"                type: \"object\",",
+							"                minProperties: 1,",
+							"                patternProperties: {",
+							"                    \"^[a-z]{2}$\": { type: \"string\" }",
+							"                },",
+							"                additionalProperties: false",
+							"            }",
+							"        },",
+							"        allOf: [",
+							"            // When the type is number, the subtype can be currency, percentage or promillage",
+							"            {",
+							"                if: {",
+							"                    properties: { type: {const: \"number\"}},",
+							"                    required: [\"type\"]",
+							"                },",
+							"                then: {",
+							"                    properties: {",
+							"                        subtype: { enum: [\"currency\", \"percentage\", \"promillage\"]}",
+							"                    }",
+							"                }",
+							"            },",
+							"",
+							"            // When the type is string, the subtype can be referenceData, list or Partner",
+							"            {",
+							"                if: {",
+							"                    properties: { type: { const: \"string\" }},",
+							"                    required: [\"type\"]",
+							"                },",
+							"                then: {",
+							"                    properties: {",
+							"                        subtype: { enum: [\"referenceData\", \"list\", \"Partner\", \"Activity\", \"Organisation\", \"text\"]}",
+							"                    }",
+							"                }",
+							"            },",
+							"",
+							"            // When type is number or numerical, it can have max and min validations",
+							"            {",
+							"                if: {",
+							"                    properties: { type: { enum: [\"number\", \"numerical\"] }},",
+							"                    required: [\"type\"]",
+							"                },",
+							"                then: {",
+							"                    properties: { min: { type: \"number\" }, max: { type: \"number\" }}",
+							"                }",
+							"            },",
+							"",
+							"            // When type is numerical, the default value must match the structure of a numerical",
+							"            {",
+							"                if: {",
+							"                    properties: { type: {const: \"numerical\" } },",
+							"                    required: [\"type\"]",
+							"                },",
+							"                then: {",
+							"                    properties: {",
+							"                        default: {",
+							"                            type: \"object\",",
+							"                            properties: {",
+							"                                value: { type: [\"integer\", \"null\"] },",
+							"                                decimals: { type: \"integer\" },",
+							"                                symbol: { type: \"string\" }",
+							"                            },",
+							"                            additionalProperties: false",
+							"                        }",
+							"                    }",
+							"                }",
+							"            },",
+							"",
+							"            // When the type is string, we can have a pattern validation",
+							"            {",
+							"                if: { ",
+							"                    properties: { type: { const: \"string\" }},",
+							"                    required: [\"type\"]",
+							"                }, ",
+							"                then: {",
+							"                    properties: { pattern: { type: \"string\" } }",
+							"                }",
+							"            },",
+							"",
+							"            // When type is numerical, it can specify a unit",
+							"            {",
+							"                if: {",
+							"                    properties: { type: { const: \"numerical\" } },",
+							"                    required: [\"type\"]",
+							"                },",
+							"                then: {",
+							"                    properties: { symbol: {type: \"string\" } }",
+							"                }",
+							"            },",
+							"",
+							"            // When type is Contact, it can have validations in options",
+							"            {",
+							"                if: {",
+							"                    properties: { type: { const: \"Contact\"}},",
+							"                    required: [\"type\"]",
+							"                },",
+							"                then: {",
+							"                    properties: {",
+							"                        options: {",
+							"                            type: \"object\",",
+							"                            patternProperties: {",
+							"                                \"Required$\": {type: \"boolean\"}",
+							"                            },",
+							"                            additionalProperties: false",
+							"                        }",
+							"                    }",
+							"                }",
+							"            },",
+							"",
+							"            // When subtype is referenceData, then the options must have a typeName",
+							"            {",
+							"                if: {",
+							"                    properties: { subtype: {const: \"referenceData\" } },",
+							"                    required: [\"subtype\"]",
+							"                },",
+							"                then: {",
+							"                    properties: {",
+							"                        options: {",
+							"                            type: \"object\",",
+							"                            properties: {",
+							"                                typeName: { type: \"string\" }",
+							"                            },",
+							"                            required: [\"typeName\"],",
+							"                            additionalProperties: false",
+							"                        }",
+							"                    }",
+							"                }",
+							"            },",
+							"",
+							"            // When subtype is list then the options must be the possible values",
+							"            {",
+							"                if: {",
+							"                    properties: { subtype: {const: \"list\" } },",
+							"                    required: [\"subtype\"]",
+							"                },",
+							"                then: {",
+							"                    properties: {",
+							"                        options: {",
+							"                            type: \"object\",",
+							"                            additionalProperties: {",
+							"                                type: \"object\",",
+							"                                properties: {",
+							"                                    label: {",
+							"                                        type: \"object\",",
+							"                                        patternProperties: {",
+							"                                            \"^[a-z]{2}$\": { type: \"string\" }",
+							"                                        }",
+							"                                    }",
+							"                                },",
+							"                                required: [\"label\"],",
+							"                                additionalProperties: false",
+							"                            }",
+							"                        }",
+							"                    }",
+							"                }",
+							"            }",
+							"        ],",
+							"        required: [\"type\"],",
+							"        unevaluatedProperties: false",
+							"    }",
+							"};",
+							"pm.test(\"Validate with JSON Schema\",()=>{",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.unset(\"riskSchema\");"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/schema",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"schema"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Risk Template",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"const response = pm.response.json();",
+							"const riskSchemaString = pm.collectionVariables.get(\"riskSchema\");",
+							"pm.expect(riskSchemaString, \"Risk schema not set. Make sure to run 'get schema' before that\").to.exist;",
+							"const riskSchema = JSON.parse(riskSchemaString);",
+							"",
+							"pm.test(\"Validate template with risk schema\",() => { ",
+							"    // Validate that all fields are defined in the risk schema",
+							"    for (const [key, value] of Object.entries(response)) {",
+							"        const schemaForKey = riskSchema[key];",
+							"        pm.expect(schemaForKey, `Schema for ${key} not found!`).to.exist;",
+							"        if (schemaForKey.required && schemaForKey.default) {",
+							"            pm.expect(value, `Expected default value for ${key}`).to.exist;",
+							"            validateDataType(value, schemaForKey.type, key);",
+							"        }",
+							"    }",
+							"",
+							"    // Validate that all schema fields are in the template",
+							"    // A template should define all fields from the schema, however, those without default value, must be null",
+							"    // Note: this is not a \"MUST\", unless \"stricValidation\" is set to true.",
+							"    for (const key of Object.keys(riskSchema)) {",
+							"        if (!response.hasOwnProperty(key)) {",
+							"            logOrThrow(`Field defined in the schema but not present in the template: ${key}`);",
+							"        }",
+							"    }",
+							"",
+							"});",
+							"",
+							"function validateDataType(value, expectedType, propertyName) {",
+							"    if (value) {",
+							"        let actualType = typeof value;",
+							"        if ([\"numerical\", \"Contact\", \"Date\"].includes(expectedType)) {",
+							"            expectedType = \"object\";",
+							"        }",
+							"        pm.expect(actualType, `Data type mismatch for property ${propertyName}`).to.eq(expectedType)",
+							"    }",
+							"}",
+							"",
+							"function logOrThrow(message) {",
+							"    if (pm.variables.get(\"strictValidation\") === \"true\") {",
+							"        pm.expect(false, message).to.be.true;",
+							"    } else {",
+							"        console.warn(message);",
+							"    }",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}",
+					"host": [
+						"{{baseUrl}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get plugin info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Expect successful response\",() => { ",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const strictValidationSchema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"        name: { type: \"string\" },",
+							"        version: { type: \"number\" },",
+							"        customerName: { type: \"string\" },",
+							"        parentName: { type: [\"string\", \"null\"]},",
+							"        customPremiumsSupported: { type: \"boolean\" }",
+							"    },",
+							"    additionalProperties: false,",
+							"    required: [ \"name\", \"version\", \"customerName\" ]",
+							"};",
+							"",
+							"const extendedValidationSchema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"        name: { type: \"string\" },",
+							"        version: { type: \"number\" },",
+							"        customerName: { type: \"string\" },",
+							"        parentName: { type: [\"string\", \"null\"]},",
+							"        customPremiumsSupported: { type: \"boolean\" }",
+							"    },",
+							"    patternProperties: {",
+							"        \"^customer(Name)?$\": {type: \"string\"},",
+							"        \"^parent(Name)?$\": {type: [\"string\", \"null\"]}",
+							"    },",
+							"    additionalProperties: false,",
+							"    required: [ \"name\", \"version\" ],",
+							"    oneOf: [",
+							"        {required: [\"customer\"]},",
+							"        {required: [\"customerName\"]}",
+							"    ]",
+							"};",
+							"",
+							"pm.test(\"Validate response structure\", () => {",
+							"    if (pm.variables.get(\"strictValidation\") === \"true\") {",
+							"        pm.response.to.have.jsonSchema(strictValidationSchema);",
+							"    } else {",
+							"        pm.response.to.have.jsonSchema(extendedValidationSchema);",
+							"    }",
+							"});",
+							"",
+							"",
+							"",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseUrl}}/info",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get tags",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Expect successful response\",() => { ",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate response structure\", () => {",
+							"    const responseSchema = {",
+							"        type: \"array\",",
+							"        minItems: 0,",
+							"        items: {",
+							"            type: \"object\",",
+							"            properties: {",
+							"                name: { type: \"string\" },",
+							"                label: { ",
+							"                    type: \"object\",",
+							"                    minProperties: 1,",
+							"                    patternProperties: {",
+							"                        \"^[a-z]{2}$\": { type: \"string\" }",
+							"                    },",
+							"                    additionalProperties: false",
+							"                },",
+							"                deprecated: {type: \"boolean\"},",
+							"                color: {",
+							"                    type: \"string\",",
+							"                    pattern: \"^[a-z]+|(#[a-f0-9]{6,8})$\"",
+							"                }",
+							"            },",
+							"            additionalProperties: false,",
+							"            required: [\"name\", \"label\"]",
+							"        }",
+							"",
+							"    };",
+							"    pm.response.to.have.jsonSchema(responseSchema);",
+							"});",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseUrl}}/tags",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"tags"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get rate methods",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Expect successful response\",() => { ",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate response structure\", () => {",
+							"    const responseSchema = {",
+							"        type: \"array\",",
+							"        minItems: 1,",
+							"        items: {",
+							"            type: \"object\",",
+							"            properties: {",
+							"                name: { type: \"string\" },",
+							"                label: { ",
+							"                    type: \"object\",",
+							"                    minProperties: 1,",
+							"                    patternProperties: {",
+							"                        \"^[a-z]{2}$\": { type: \"string\" }",
+							"                    },",
+							"                    additionalProperties: false",
+							"                },",
+							"                requiresPricingTable: { type: \"boolean\" }",
+							"            },",
+							"            additionalProperties: false,",
+							"            required: [\"name\", \"label\", \"requiresPricingTable\"]",
+							"        }",
+							"",
+							"    };",
+							"    pm.response.to.have.jsonSchema(responseSchema);",
+							"",
+							"    // Store the rate methods if the response is valid",
+							"    const rateMethodNames = pm.response.json().map(method => method.name);",
+							"    pm.collectionVariables.set(\"rateMethods\", JSON.stringify(rateMethodNames));",
+							"});",
+							"",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.unset(\"rateMethod\");",
+							"pm.collectionVariables.unset(\"rateMethods\");",
+							"pm.collectionVariables.unset(\"rateCalculationResponses\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseUrl}}/rate",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"rate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate risk",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Expect successful response\",() => { ",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const CONTACT_OBJECT = {",
+							"    name: \"Nameless\",",
+							"    email: null,",
+							"    phone: null,",
+							"    mobile: null,",
+							"    title: null,",
+							"    address: {",
+							"        street: \"Main Str.\",",
+							"        number: \"123\",",
+							"        suffix: \"123\",",
+							"        postalCode: \"1234\",",
+							"        location: \"Somewhere\",",
+							"        country: \"be\"",
+							"    }",
+							"}",
+							"",
+							"const riskSchemaString = pm.collectionVariables.get(\"riskSchema\");",
+							"pm.expect(riskSchemaString, \"Risk schema not set. Make sure to run 'get schema' before that\").to.exist;",
+							"const riskSchema = JSON.parse(riskSchemaString);",
+							"",
+							"pm.collectionVariables.unset(\"validRiskObject\");",
+							"const objectToValidate = prepareValidObject();",
+							"pm.collectionVariables.set(\"validRiskObject\", JSON.stringify(objectToValidate));",
+							"",
+							"function prepareValidObject() {",
+							"    const riskObject = {};",
+							"    for (const [field, fieldSchema] of Object.entries(riskSchema)) {",
+							"        let value = fieldSchema.default;",
+							"        if (value !== null && value != undefined) {",
+							"            riskObject[field] = value;",
+							"            continue;",
+							"        }",
+							"",
+							"        // If there is no default value but schema is required",
+							"        if (fieldSchema.required) {",
+							"            riskObject[field] = getValidValueForField(fieldSchema);",
+							"        }",
+							"        // Else leave undefined",
+							"    }",
+							"",
+							"    // Apply any optional customisations",
+							"    const riskDefaults = pm.environment.get(\"riskDefaults\");",
+							"    console.log(riskDefaults)",
+							"    const parsedRiskDefaults = riskDefaults ? JSON.parse(riskDefaults) : {};",
+							"    return Object.assign(riskObject, parsedRiskDefaults);",
+							"}",
+							"",
+							"function getValidValueForField(fieldSchema) {",
+							"    const type = fieldSchema.type;",
+							"",
+							"    switch (type) {",
+							"        case \"number\":",
+							"            return fieldSchema.min || 0;",
+							"        case \"numerical\":",
+							"            return {value: 1, decimals: 1}",
+							"        case \"boolean\":",
+							"            return false;",
+							"        case \"Date\":",
+							"            return \"2023-03-10T15:11:02Z\"",
+							"        case \"Contact\":",
+							"            return CONTACT_OBJECT;",
+							"        case \"string\":",
+							"            return getValidValueForStringType(fieldSchema);",
+							"        default:",
+							"            throw new Error(\"Unknown data type: \" + type);",
+							"    }",
+							"}",
+							"",
+							"function getValidValueForStringType(fieldSchema) {",
+							"    const subtype = fieldSchema.subtype;",
+							"    if (!subtype) {",
+							"        return \"Test\"; // A generic string",
+							"    }",
+							"    switch(subtype) {",
+							"        case \"Activity\":",
+							"            return \"education\";",
+							"        case \"Organisation\":",
+							"            return \"5acd6a713b564701aceb9d6c\";",
+							"        case \"referenceData\": // Fall through",
+							"        case \"Partner\":",
+							"            return \"640b577c83bfb8ad941a2124\";",
+							"        case \"list\": ",
+							"            return Object.keys(fieldSchema.options)[0]; // Get the first option from the list",
+							"        case \"text\":",
+							"            return \"Random\"",
+							"        default:",
+							"            throw new Error(\"Invalid subtype: \", subtype);",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{validRiskObject}}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}",
+					"host": [
+						"{{baseUrl}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate risk with invalid fields",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Expect Unprocessable entity (422) response\",() => { ",
+							"    pm.response.to.have.status(422);",
+							"});",
+							"",
+							"pm.test(\"Expect invalid fields are in the response\", () => {",
+							"    const jsonResponse = pm.response.json();",
+							"    const errors = jsonResponse.errors;",
+							"    const expectedInvalidFields = JSON.parse(pm.collectionVariables.get(\"invalidFields\"));",
+							"    expectedInvalidFields.forEach(field => {",
+							"        pm.expect(errors).to.have.property(field);",
+							"    });",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"",
+							"const riskSchemaString = pm.collectionVariables.get(\"riskSchema\");",
+							"pm.expect(riskSchemaString, \"Risk schema not set. Make sure to run 'get schema' before that\").to.exist;",
+							"const riskSchema = JSON.parse(riskSchemaString);",
+							"",
+							"const validRisk = JSON.parse(pm.collectionVariables.get(\"validRiskObject\"));",
+							"",
+							"",
+							"pm.collectionVariables.unset(\"invalidRiskObject\");",
+							"pm.collectionVariables.unset(\"invalidFields\");",
+							"const {riskObject, invalidFields} = prepareInvalidObject(validRisk);",
+							"pm.collectionVariables.set(\"invalidRiskObject\", JSON.stringify(riskObject));",
+							"pm.collectionVariables.set(\"invalidFields\", JSON.stringify(invalidFields));",
+							"",
+							"",
+							"function prepareInvalidObject(riskObject) {",
+							"    const invalidRiskObject = {...riskObject};",
+							"    const invalidFields = [];",
+							"    for (const [field, fieldSchema] of Object.entries(riskSchema)) {        ",
+							"        if (fieldSchema.required) {",
+							"            invalidRiskObject[field] = null;",
+							"            invalidFields.push(field);",
+							"        }",
+							"        // Else leave undefined",
+							"    }",
+							"    return { riskObject: invalidRiskObject, invalidFields };",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{invalidRiskObject}}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}",
+					"host": [
+						"{{baseUrl}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transform Valid risk",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Expect successful response\",() => { ",
+							"    pm.expect(pm.response.code,\"Invalid response code\").to.be.oneOf([200,404]);",
+							"});",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{validRiskObject}}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/transform",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"transform"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transform for Contract version",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check response: 200 or 404\",() => { ",
+							"    const cvTransformationsImplemented = pm.variables.get(\"checkContractVersionTransformations\")",
+							"    if (cvTransformationsImplemented) {",
+							"        pm.expect(pm.response.code,\"Invalid response code\").to.be.oneOf([200,404]);",
+							"    };",
+							"});",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"now\", new Date().toISOString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"riskModel\": {{validRiskObject}},\n    \"startDate\": \"{{now}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/contract-version",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"contract-version"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get status of a valid risk",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Expect successful response\",() => { ",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Validate response structure\", () => {",
+							"    const responseSchema = {",
+							"        type: \"object\",",
+							"        properties: {",
+							"            riskLevel: { enum: [\"high\", \"medium\", \"low\", \"referral\"] },",
+							"            insurable: { type: \"boolean\" },",
+							"            tags: { type: \"array\", items: { type: \"string\" } },",
+							"            customerOrg: { type: \"string\" },",
+							"            summary: { type: \"string\" },",
+							"            customerContact: { ",
+							"                type: \"object\",",
+							"                properties: {",
+							"                    title: { type: \"string\" },",
+							"                    name: { type: \"string\" },",
+							"                    email: { type: \"string\" },",
+							"                    phone: { type: \"string\" },",
+							"                    mobile: { type: \"string\" },",
+							"                    address: { ",
+							"                        type: \"object\",",
+							"                        properties: {",
+							"                            street: { type: \"string\" },",
+							"                            number: { type: \"string\" },",
+							"                            suffix: { type: \"string\" },",
+							"                            postalCode: { type: \"string\" },",
+							"                            location: { type: \"string\" },",
+							"                            country: {",
+							"                                type: \"string\",",
+							"                                pattern: \"^[a-z]{2}$\"",
+							"                            }",
+							"                        },",
+							"                        additionalProperties: false",
+							"                    }",
+							"                },",
+							"                additionalProperties: false",
+							"            },",
+							"        },",
+							"        additionalProperties: false",
+							"    };",
+							"    pm.response.to.have.jsonSchema(responseSchema);",
+							"});",
+							"",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{validRiskObject}}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/status",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Calculate rate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Expect successful response\",() => { ",
+							"    pm.expect(pm.response.code, \"Response is not successful\").to.be.oneOf([200, 204]);",
+							"    storeResponseCode();",
+							"});",
+							"",
+							"function storeResponseCode() {",
+							"    const rateCalculationResponses = pm.collectionVariables.get(\"rateCalculationResponses\") || [];",
+							"    rateCalculationResponses.push(pm.response.code);",
+							"    pm.collectionVariables.set(\"rateCalculationResponses\", rateCalculationResponses);",
+							"}",
+							"",
+							"if (pm.response.code === 200) {",
+							"    pm.test(\"Validate response structure\", () => {",
+							"        const responseSchema = {",
+							"            type: \"object\",",
+							"            properties: {",
+							"                id: {type: \"null\"},",
+							"                type: {enum: [\"package\", \"product\", \"productRange\", \"contractVersion\", \"coveragePeriod\"]},",
+							"                base: {type: \"integer\"},",
+							"                riskPremium: {type: \"integer\"},",
+							"                totalPremium: {type: \"integer\"},",
+							"                netPremium: {type: \"integer\"},",
+							"                maxCommission: {type: \"integer\"},",
+							"                commission: {type: \"integer\"},",
+							"                maxBrokerCommission: {type: \"integer\"},",
+							"                brokerCommission: {type: \"integer\"},",
+							"                totalCommission: {type: \"integer\"},",
+							"                fee: {type: \"integer\"},",
+							"                brokerFee: {type: \"integer\"},",
+							"                extraCost: {type: \"integer\"},",
+							"                tax: {type: \"integer\"},",
+							"                date: {type: \"string\"},",
+							"                startDate: {type: \"string\"},",
+							"                endDate: {type: \"string\"},",
+							"                rates: {",
+							"                    type: \"null\"",
+							"                },",
+							"                components: {",
+							"                    type: \"array\",",
+							"                    minItems: 0,",
+							"                    items: [",
+							"                        {",
+							"                            type: \"object\",",
+							"                            properties: {",
+							"                                type: {enum: [\"riskPremium\", \"fee\", \"brokerFee\", \"extraCost\"]},",
+							"                                amount: {type: \"integer\"},",
+							"                                subtype: {",
+							"                                    type: \"string\",",
+							"                                    pattern: \"^[a-z][a-z0-9]*(-[a-z0-9]+|[A-Z][a-z]*)*$\"",
+							"                                },",
+							"                                group: {type: \"string\"},",
+							"                                label: {",
+							"                                    type: \"object\",",
+							"                                    minProperties: 1,",
+							"                                    patternProperties: {",
+							"                                        \"^[a-z]{2}$\": {type: \"string\"}",
+							"                                    },",
+							"                                    additionalProperties: false",
+							"                                }",
+							"                            },",
+							"                            required: [\"type\", \"amount\", \"subtype\", \"label\"]",
+							"                        }",
+							"                    ]",
+							"                },",
+							"                label: {",
+							"                    type: \"object\",",
+							"                    minProperties: 1,",
+							"                    patternProperties: {",
+							"                        \"^[a-z]{2}$\": {type: \"string\"}",
+							"                    },",
+							"                    additionalProperties: false",
+							"                },",
+							"                details: {",
+							"                    type: \"object\",",
+							"                    additionalProperties: {}",
+							"                }",
+							"            },",
+							"            required: [",
+							"                \"base\",",
+							"                \"riskPremium\",",
+							"                \"totalPremium\",",
+							"                \"netPremium\",",
+							"                \"maxCommission\",",
+							"                \"commission\",",
+							"                \"maxBrokerCommission\",",
+							"                \"brokerCommission\",",
+							"                \"totalCommission\",",
+							"                \"fee\",",
+							"                \"brokerFee\",",
+							"                \"tax\",",
+							"                \"date\"",
+							"            ],",
+							"            additionalProperties: false",
+							"        };",
+							"        pm.response.to.have.jsonSchema(responseSchema);",
+							"    });",
+							"",
+							"    pm.test(\"Check rate validity\", () => {",
+							"        const jsonResponse = pm.response.json();",
+							"        const {riskPremium, totalCommission, netPremium, extraCost, tax, fee, brokerFee, totalPremium, commission, brokerCommission, maxCommission, maxBrokerCommission} = jsonResponse;",
+							"        pm.expect(netPremium, \"netPremium must be equal to the sum of: riskPremium, totalCommission\")",
+							"            .to.equal(riskPremium + totalCommission);",
+							"        pm.expect(totalPremium, \"totalPremium must be equal to the sum of: netPremium, extraCost, tax, fee, brokerFee\")",
+							"            .to.equal(netPremium + (extraCost || 0) + tax + fee + brokerFee);",
+							"        pm.expect(totalCommission, \"totalCommission must be equal to the sum of: commission, brokerCommission\")",
+							"            .to.equal(commission + brokerCommission);",
+							"        pm.expect(maxCommission, \"maxCommission must be more than or equal to totalCommission\")",
+							"            .to.be.greaterThanOrEqual(totalCommission)",
+							"        pm.expect(brokerCommission, \"brokerCommission must be less than or equal to maxBrokerCommission\")",
+							"            .to.be.lessThanOrEqual(maxBrokerCommission);",
+							"    });",
+							"} else {",
+							"    console.log(\"No rate\");",
+							"}",
+							"",
+							"",
+							"// ------- Set the next rate method -------",
+							"",
+							"const rateMethods = JSON.parse(pm.collectionVariables.get(\"rateMethods\") || \"[]\");",
+							"const currentRateMethod = pm.collectionVariables.get(\"rateMethod\") || null;",
+							"",
+							"const nextRateMethod = determineNextRateMethod();",
+							"if (nextRateMethod) {",
+							"    console.log(\"Next method\", nextRateMethod);",
+							"    pm.execution.setNextRequest(\"Calculate rate\");",
+							"    pm.collectionVariables.set(\"rateMethod\", nextRateMethod);",
+							"} else {",
+							"    console.log(\"No Next method\");",
+							"    pm.test(\"Validate at least one rate was calculated\", () => {",
+							"        const rateCalculationResponses = pm.collectionVariables.get(\"rateCalculationResponses\");",
+							"        const hasResponseWithRate = rateCalculationResponses.find(resp => resp === 200);",
+							"        pm.expect(hasResponseWithRate, \"At least one rate must have been calculated\").to.exist;",
+							"    });",
+							"}",
+							"",
+							"",
+							"function determineNextRateMethod() {",
+							"    const nextIndex = rateMethods.indexOf(currentRateMethod) + 1;",
+							"    if (nextIndex < rateMethods.length) {",
+							"        return rateMethods[nextIndex];",
+							"    }",
+							"    return null;",
+							"}",
+							"",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"now\", new Date().toISOString());",
+							"",
+							"const rateMethods = JSON.parse(pm.collectionVariables.get(\"rateMethods\") || \"[]\");",
+							"let currentRateMethod = pm.collectionVariables.get(\"rateMethod\") || null;",
+							"",
+							"// Init first request",
+							"// The next request is configured in the \"Tests\" scripts",
+							"if (!currentRateMethod) {",
+							"    currentRateMethod = getFirsRateMethodOrThrow();",
+							"    pm.collectionVariables.set(\"rateMethod\", currentRateMethod);",
+							"    console.log(\"Get first method\", currentRateMethod);",
+							"}",
+							"",
+							"",
+							"function getFirsRateMethodOrThrow() {",
+							"    if (rateMethods.length > 0) {",
+							"        return rateMethods[0];",
+							"    } else {",
+							"        throw new Error(\"NO RATE METHODS SET!\");",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"riskModel\": {{validRiskObject}},\n    \"ratingOption\": {\n        \"id\": \"5ea345023cd07db4a9d90d25\",\n        \"underwriterCommissionPercentage\": 2000,\n        \"underwriterReductionPercentage\": 0,\n        \"brokerCommissionPercentage\": 1000,\n        \"brokerReductionPercentage\": 0,\n        \"taxPercentage\": 925\n    },\n    \"pricingTable\": {\n        \"entries\": [\n            {\n                \"maximumBase\": 10000000000,\n                \"click\": false,\n                \"scale\": 1,\n                \"factor\": 100\n            }\n        ]\n    }\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/rate/{{rateMethod}}?skipValidation=false&startDate={{now}}&brokerId={{brokerId}}&productId={{productId}}&contractVersion=false",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"rate",
+						"{{rateMethod}}"
+					],
+					"query": [
+						{
+							"key": "skipValidation",
+							"value": "false"
+						},
+						{
+							"key": "startDate",
+							"value": "{{now}}"
+						},
+						{
+							"key": "brokerId",
+							"value": "{{brokerId}}"
+						},
+						{
+							"key": "productId",
+							"value": "{{productId}}"
+						},
+						{
+							"key": "contractVersion",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Calculate rate with invalid method",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Expect NOT FOUND response\",() => { ",
+							"    pm.expect(pm.response.code, \"Response must be 'NOT FOUND'\").to.be.equal(404);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"now\", new Date().toISOString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"riskObject\": {{validRiskObject}},\n    \"ratingOption\": {\n        \"id\": \"5ea345023cd07db4a9d90d25\",\n        \"underwriterCommissionPercentage\": 0,\n        \"underwriterReductionPercentage\": 0,\n        \"brokerCommissionPercentage\": 0,\n        \"brokerReductionPercentage\": 0,\n        \"taxPercentage\": 925\n    },\n    \"pricingTable\": {\n        \"entries\": [\n        {\n            \"maximumBase\": 1,\n            \"click\": false,\n            \"scale\": 1,\n            \"factor\": 100\n        }\n        ]\n    }\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/rate/invalid-method-name?skipValidation=true&startDate={{now}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"rate",
+						"invalid-method-name"
+					],
+					"query": [
+						{
+							"key": "skipValidation",
+							"value": "true"
+						},
+						{
+							"key": "startDate",
+							"value": "{{now}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "invalidFields",
+			"value": ""
+		},
+		{
+			"key": "now",
+			"value": ""
+		},
+		{
+			"key": "validRiskObject",
+			"value": ""
+		},
+		{
+			"key": "invalidRiskObject",
+			"value": ""
+		},
+		{
+			"key": "rateMethods",
+			"value": ""
+		},
+		{
+			"key": "riskSchema",
+			"value": ""
+		},
+		{
+			"key": "rateMethod",
+			"value": ""
+		},
+		{
+			"key": "rateCalculationResponses",
+			"value": ""
+		}
+	]
+}

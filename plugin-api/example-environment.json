@@ -1,0 +1,51 @@
+{
+	"id": "ba200cb7-0ae9-472d-ae46-2e910882c04d",
+	"name": "Plugin Test",
+	"values": [
+		{
+			"key": "baseUrl",
+			"value": "https://dicartst.verzekerje.be/api/v1",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "riskDefaults",
+			"value": "{\n  \"mainDriver\": {\n    \"name\": \"Test\",\n    \"firstName\": \"Test\",\n    \"lastName\": \"Test\",\n    \"email\": \"test@rethinkit.be\",\n    \"phone\": \"0000000\",\n    \"mobile\": \"0000000\",\n    \"title\": \"mr\",\n    \"address\": {\n      \"street\": \"Main Str.\",\n      \"number\": \"123\",\n      \"suffix\": \"123\",\n      \"postalCode\": \"1234\",\n      \"location\": \"Somewhere\",\n      \"country\": \"be\"\n    }\n  },\n  \"camperChassisNumber\": \"0123456789abcdefg\",\n  \"camperCatalogueValue\": {\n    \"decimals\": 2,\n    \"symbol\": \"€\",\n    \"value\": 3000000\n  },\n  \"camperAccessoriesValue\": {\n    \"decimals\": 2,\n    \"symbol\": \"€\",\n    \"value\": 1000000\n  }\n}\n",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "strictValidation",
+			"value": "false",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "brokerId",
+			"value": "62206c70c9a49b61f50437fd",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "productId",
+			"value": "624351ec252669a9ad28704c",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "jwt",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "checkContractVersionTransformations",
+			"value": "true",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2024-11-05T08:26:10.591Z",
+	"_postman_exported_using": "Postman/11.18.2"
+}
