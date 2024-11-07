@@ -2,10 +2,6 @@
 
 ### 1.0.0
 
-- SCAD-26 Create documentation repository [Irina][]
+- OPS-197 Create documentation repository [IT]
 
-<!-- Contributors -->
 
-[Nikolay]: mailto:nikolayivanov@rethinkit.be
-
-[Irina]: mailto:irinatsirkalova@rethinkit.be
